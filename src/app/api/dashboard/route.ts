@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 
+// This route uses auth and other dynamic server features; ensure it's treated as dynamic
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const { userId } = auth();
