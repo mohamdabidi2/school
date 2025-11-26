@@ -32,6 +32,11 @@ const AccueilPage = async ({
   let email: string | undefined;
   let roleContext: { parentId?: string; studentId?: string; teacherId?: string } = {};
   
+  // Debug logging for dashboard data fetching
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("📊 [DASHBOARD] Fetching user data from Clerk");
+  console.log("   ├─ userId:", userId ? `✅ ${userId}` : "❌ null");
+  
   // Get all user data from Clerk publicMetadata - no database queries needed
   if (userId) {
     try {
@@ -39,22 +44,36 @@ const AccueilPage = async ({
       const clerkUser = await clerk.users.getUser(userId);
       const metadata = clerkUser.publicMetadata as { role?: string; teacherId?: string; studentId?: string; parentId?: string } | undefined;
       
+      // Debug: Log full publicMetadata
+      console.log("   ├─ Full publicMetadata:", JSON.stringify(clerkUser.publicMetadata, null, 2));
+      console.log("   ├─ Parsed metadata:", JSON.stringify(metadata, null, 2));
+      
       // Get role from publicMetadata
       role = metadata?.role || "";
       email = clerkUser.emailAddresses?.[0]?.emailAddress;
+      
+      console.log("   ├─ Role extracted:", role || "❌ EMPTY/UNDEFINED");
+      console.log("   ├─ Email:", email || "❌ not found");
       
       // Use userId directly as domain ID (Clerk userId = database ID)
       // Also check publicMetadata for explicit IDs if they exist
       if (role === "teacher") {
         roleContext.teacherId = metadata?.teacherId || userId;
+        console.log("   ├─ Teacher ID:", roleContext.teacherId);
       } else if (role === "student") {
         roleContext.studentId = metadata?.studentId || userId;
+        console.log("   ├─ Student ID:", roleContext.studentId);
       } else if (role === "parent") {
         roleContext.parentId = metadata?.parentId || userId;
+        console.log("   ├─ Parent ID:", roleContext.parentId);
       }
+      
+      console.log("   └─ Role Context:", JSON.stringify(roleContext, null, 2));
     } catch (error) {
-      console.error("Error fetching user from Clerk:", error);
+      console.error("   └─ ❌ Error fetching user from Clerk:", error);
     }
+  } else {
+    console.log("   └─ ❌ No userId - cannot fetch user data");
   }
 
   const isAdminLike = ["admin", "director", "school-manager", "finance"].includes(role);
@@ -63,6 +82,16 @@ const AccueilPage = async ({
   const isAdministration = role === "administration";
   const isFinance = role === "finance";
   const isAdmin = role === "admin" || role === "director" || role === "school-manager";
+  
+  // Debug: Log role flags
+  console.log("📊 [DASHBOARD] Role flags:");
+  console.log("   ├─ isAdmin:", isAdmin);
+  console.log("   ├─ isTeacher:", isTeacher);
+  console.log("   ├─ isStudentOrParent:", isStudentOrParent);
+  console.log("   ├─ isAdministration:", isAdministration);
+  console.log("   ├─ isFinance:", isFinance);
+  console.log("   └─ isAdminLike:", isAdminLike);
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
   // All users see the dashboard with role-based content
   // No redirects - dashboard handles all roles appropriately

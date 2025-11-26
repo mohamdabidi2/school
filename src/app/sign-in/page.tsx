@@ -5,7 +5,7 @@ import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
 import { Suspense, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const SignInForm = () => {
   useEffect(() => {
@@ -61,7 +61,6 @@ const SignInForm = () => {
 const SignInPageContent = () => {
   const { isSignedIn, isLoaded, user } = useUser();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const hasRedirected = useRef(false);
 
   // Step-by-step debug logging
@@ -88,10 +87,10 @@ const SignInPageContent = () => {
           // Redirect to dashboard after login, or use redirect_url if provided
           const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
           console.log("   └─ 🔄 CLIENT-SIDE REDIRECT to:", redirectUrl);
-          console.log("   └─ Using router.replace to avoid full page reload");
+          console.log("   └─ Using window.location.replace for reliable redirect");
           
-          // Use router.replace for internal routes
-          router.replace(redirectUrl);
+          // Use window.location.replace for a hard redirect that works reliably
+          window.location.replace(redirectUrl);
         }
       } else {
         console.log("   └─ ❌ User is NOT signed in - showing sign-in form");
@@ -99,7 +98,7 @@ const SignInPageContent = () => {
     } else {
       console.log("🟡 [STEP 3] Auth state loading...");
     }
-  }, [isLoaded, isSignedIn, searchParams, router]);
+  }, [isLoaded, isSignedIn, searchParams]);
 
   // Show loading while checking auth status
   if (!isLoaded) {
