@@ -3,10 +3,15 @@
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useSearchParams } from "next/navigation";
 
 const SignInForm = () => {
+  useEffect(() => {
+    console.log("🔵 [STEP 1] SignInForm component rendered");
+  }, []);
+
   return (
     <SignIn.Root 
       routing="path"
@@ -54,10 +59,37 @@ const SignInForm = () => {
 };
 
 const SignInPageContent = () => {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
+  const searchParams = useSearchParams();
+
+  // Step-by-step debug logging
+  useEffect(() => {
+    console.log("🟢 [STEP 2] SignInPageContent component rendered/updated");
+    console.log("   └─ isLoaded:", isLoaded);
+    console.log("   └─ isSignedIn:", isSignedIn);
+    console.log("   └─ user:", user ? { id: user.id, email: user.emailAddresses[0]?.emailAddress } : "null");
+    console.log("   └─ current URL:", typeof window !== "undefined" ? window.location.href : "server");
+    console.log("   └─ searchParams:", Object.fromEntries(searchParams.entries()));
+    console.log("   └─ redirect_url param:", searchParams.get("redirect_url"));
+  }, [isLoaded, isSignedIn, user, searchParams]);
+
+  // Track state changes
+  useEffect(() => {
+    if (isLoaded) {
+      console.log("🟡 [STEP 3] Auth state loaded");
+      if (isSignedIn) {
+        console.log("   └─ ✅ User is SIGNED IN - waiting for middleware redirect");
+      } else {
+        console.log("   └─ ❌ User is NOT signed in - showing sign-in form");
+      }
+    } else {
+      console.log("🟡 [STEP 3] Auth state loading...");
+    }
+  }, [isLoaded, isSignedIn]);
 
   // Show loading while checking auth status
   if (!isLoaded) {
+    console.log("🟠 [STEP 4] Rendering: Loading state (waiting for auth to load)");
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
         <div className="text-center">
@@ -71,9 +103,12 @@ const SignInPageContent = () => {
   // If signed in, don't render anything - middleware will handle redirect
   // This prevents the toggle between loading states
   if (isSignedIn) {
+    console.log("🔴 [STEP 5] User is signed in - returning null (middleware should redirect)");
+    console.log("   └─ Expected: Middleware should redirect to / or redirect_url");
     return null;
   }
 
+  console.log("🟣 [STEP 6] Rendering: Sign-in form (user not authenticated)");
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
       <div className="w-full max-w-md">
@@ -93,6 +128,11 @@ const SignInPageContent = () => {
 };
 
 const PageConnexion = () => {
+  useEffect(() => {
+    console.log("⚪ [STEP 0] PageConnexion wrapper component mounted");
+    console.log("   └─ URL:", typeof window !== "undefined" ? window.location.href : "server");
+  }, []);
+
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
