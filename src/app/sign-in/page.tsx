@@ -3,7 +3,7 @@
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
 
@@ -61,38 +61,30 @@ const SignInForm = () => {
 const SignInPageContent = () => {
   const { isSignedIn, isLoaded, user } = useUser();
   const searchParams = useSearchParams();
-  const hasRedirected = useRef(false);
 
-  // Step-by-step debug logging
+  // Step-by-step debug logging with ROLE information
   useEffect(() => {
     console.log("🟢 [STEP 2] SignInPageContent component rendered/updated");
     console.log("   └─ isLoaded:", isLoaded);
     console.log("   └─ isSignedIn:", isSignedIn);
-    console.log("   └─ user:", user ? { id: user.id, email: user.emailAddresses[0]?.emailAddress } : "null");
+    
+    if (user) {
+      const role = user.publicMetadata?.role as string || "";
+      console.log("   └─ user:", { 
+        id: user.id, 
+        email: user.emailAddresses[0]?.emailAddress,
+        role: role || "❌ NO ROLE FOUND"
+      });
+      console.log("   └─ 🔑 USER ROLE:", role || "❌ EMPTY/UNDEFINED");
+      console.log("   └─ Full publicMetadata:", JSON.stringify(user.publicMetadata, null, 2));
+    } else {
+      console.log("   └─ user: null");
+    }
+    
     console.log("   └─ current URL:", typeof window !== "undefined" ? window.location.href : "server");
     console.log("   └─ searchParams:", Object.fromEntries(searchParams.entries()));
     console.log("   └─ redirect_url param:", searchParams.get("redirect_url"));
   }, [isLoaded, isSignedIn, user, searchParams]);
-
-  // If user is signed in and we're still on sign-in page, redirect immediately
-  // This is a fallback in case middleware redirect didn't work (shouldn't happen, but safety net)
-  useEffect(() => {
-    if (isLoaded && isSignedIn && typeof window !== "undefined" && !hasRedirected.current) {
-      const currentPath = window.location.pathname;
-      // Only redirect if we're actually on the sign-in page
-      if (currentPath === "/sign-in" || currentPath.startsWith("/sign-in")) {
-        hasRedirected.current = true;
-        const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
-        console.log("   └─ 🔄 FALLBACK REDIRECT: Still on sign-in page, redirecting to:", redirectUrl);
-        // Small delay to let middleware handle it first, then fallback
-        setTimeout(() => {
-          if (window.location.pathname === "/sign-in" || window.location.pathname.startsWith("/sign-in")) {
-            window.location.replace(redirectUrl);
-          }
-        }, 100);
-      }
-    }
-  }, [isLoaded, isSignedIn, searchParams]);
 
   // Show loading while checking auth status
   if (!isLoaded) {
@@ -108,9 +100,12 @@ const SignInPageContent = () => {
   }
 
   // If signed in, show loading while middleware redirects
-  // Middleware will handle the redirect, so we just show a loading state
+  // DO NOT redirect here - let middleware handle it completely to avoid loops
   if (isSignedIn) {
+    const role = user?.publicMetadata?.role as string || "";
     console.log("🔴 [STEP 5] User is signed in - middleware will redirect");
+    console.log("   └─ 🔑 ROLE FROM USER:", role || "❌ NO ROLE");
+    console.log("   └─ ⚠️ NOT redirecting client-side - middleware handles this");
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
         <div className="text-center">

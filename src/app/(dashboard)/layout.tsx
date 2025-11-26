@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from "@clerk/nextjs";
 import Menu from "@/components/Menu";
 import NavbarClient from "@/components/NavbarClient";
@@ -15,9 +15,22 @@ export default function DispositionTableauDeBord({
   children: React.ReactNode;
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const role = user?.publicMetadata?.role as string || "";
   const homeUrl = getRoleRedirect(role) || "/";
+
+  // Log role when user data is loaded
+  useEffect(() => {
+    if (isLoaded && user) {
+      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+      console.log("📱 [DASHBOARD LAYOUT] User data loaded");
+      console.log("   ├─ User ID:", user.id);
+      console.log("   ├─ Email:", user.emailAddresses[0]?.emailAddress || "not found");
+      console.log("   └─ 🔑 USER ROLE:", role || "❌ NO ROLE FOUND");
+      console.log("   └─ Full publicMetadata:", JSON.stringify(user.publicMetadata, null, 2));
+      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    }
+  }, [isLoaded, user, role]);
 
   return (
     <div className="h-screen flex flex-col lg:flex-row">
