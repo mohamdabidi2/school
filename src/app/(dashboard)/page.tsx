@@ -14,6 +14,9 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
+// Force dynamic rendering since we use auth() and searchParams
+export const dynamic = 'force-dynamic';
+
 // Page d'accueil axée sur les graphiques (FR) — rendue selon le rôle
 const AccueilPage = async ({
   searchParams,
