@@ -76,7 +76,8 @@ export const createParent = async (
       return { success: false, error: true, message: "Le mot de passe est requis pour créer un compte !" };
     }
 
-    const user = await clerkClient.users.createUser({
+    const clerk = await clerkClient();
+    const user = await clerk.users.createUser({
       username: data.username,
       password: data.password,
       firstName: data.name,
@@ -116,7 +117,8 @@ export const updateParent = async (
   }
   try {
     // Update Clerk user account
-    await clerkClient.users.updateUser(data.id, {
+    const clerk = await clerkClient();
+    await clerk.users.updateUser(data.id, {
       username: data.username,
       ...(data.password && data.password !== "" && { password: data.password }),
       firstName: data.name,
@@ -155,7 +157,8 @@ export const deleteParent = async (
   try {
     // Delete Clerk user account
     try {
-      await clerkClient.users.deleteUser(id);
+      const clerk = await clerkClient();
+      await clerk.users.deleteUser(id);
     } catch (authErr) {
       console.warn("Clerk delete failed, proceeding with DB deletion", authErr);
     }
@@ -331,7 +334,8 @@ export const createTeacher = async (
   data: TeacherSchema
 ) => {
   try {
-    const user = await clerkClient.users.createUser({
+    const clerk = await clerkClient();
+    const user = await clerk.users.createUser({
       username: data.username,
       password: data.password,
       firstName: data.name,
@@ -375,7 +379,8 @@ export const updateTeacher = async (
     return { success: false, error: true };
   }
   try {
-    const user = await clerkClient.users.updateUser(data.id, {
+    const clerk = await clerkClient();
+    const user = await clerk.users.updateUser(data.id, {
       username: data.username,
       ...(data.password !== "" && { password: data.password }),
       firstName: data.name,
@@ -418,7 +423,8 @@ export const deleteTeacher = async (
 ) => {
   const id = data.get("id") as string;
   try {
-    await clerkClient.users.deleteUser(id);
+    const clerk = await clerkClient();
+    await clerk.users.deleteUser(id);
 
     await prisma.teacher.delete({
       where: {
@@ -449,7 +455,8 @@ export const createStudent = async (
       return { success: false, error: true };
     }
 
-    const user = await clerkClient.users.createUser({
+    const clerk = await clerkClient();
+    const user = await clerk.users.createUser({
       username: data.username,
       password: data.password,
       firstName: data.name,
@@ -496,7 +503,8 @@ export const updateStudent = async (
     return { success: false, error: true };
   }
   try {
-    const user = await clerkClient.users.updateUser(data.id, {
+    const clerk = await clerkClient();
+    const user = await clerk.users.updateUser(data.id, {
       username: data.username,
       ...(data.password !== "" && { password: data.password }),
       firstName: data.name,
@@ -542,7 +550,8 @@ export const deleteStudent = async (
   try {
     // Try to delete auth user; if it fails, proceed with DB cleanup
     try {
-      await clerkClient.users.deleteUser(id);
+      const clerk = await clerkClient();
+      await clerk.users.deleteUser(id);
     } catch (authErr) {
       console.warn("Clerk delete failed, proceeding with DB deletion", authErr);
     }
@@ -1499,7 +1508,8 @@ export const createStaffUser = async (
   data: { username: string; password: string; role: 'finance' | 'administration' | 'administrateur' | 'directeur'; name: string; surname: string; email?: string; phone?: string; img?: string; salary?: number }
 ) => {
   try {
-    const user = await clerkClient.users.createUser({
+    const clerk = await clerkClient();
+    const user = await clerk.users.createUser({
       username: data.username,
       password: data.password,
       firstName: data.name,
@@ -1523,7 +1533,8 @@ export const updateStaffUser = async (
 ) => {
   try {
     if (data.clerkId) {
-      await clerkClient.users.updateUser(data.clerkId, {
+      const clerk = await clerkClient();
+      await clerk.users.updateUser(data.clerkId, {
         username: data.username,
         ...(data.password ? { password: data.password } : {}),
         firstName: data.name,
@@ -1548,7 +1559,10 @@ export const deleteStaffUser = async (
   try {
     const staff = await prisma.staffUser.findUnique({ where: { id: parseInt(id) } });
     if (staff?.clerkId) {
-      try { await clerkClient.users.deleteUser(staff.clerkId); } catch {}
+      try { 
+        const clerk = await clerkClient();
+        await clerk.users.deleteUser(staff.clerkId); 
+      } catch {}
     }
     await prisma.staffUser.delete({ where: { id: parseInt(id) } });
     return { success: true, error: false };
