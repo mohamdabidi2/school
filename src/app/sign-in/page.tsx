@@ -3,13 +3,16 @@
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const SignInForm = () => {
   return (
     <SignIn.Root 
       routing="path"
       path="/sign-in"
+      fallbackRedirectUrl="/"
     >
       <SignIn.Step
         name="start"
@@ -53,6 +56,15 @@ const SignInForm = () => {
 };
 
 const PageConnexion = () => {
+  const { isSignedIn } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.push("/");
+    }
+  }, [isSignedIn, router]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
       <div className="w-full max-w-md">
