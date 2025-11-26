@@ -12,7 +12,6 @@ const SignInForm = () => {
     <SignIn.Root 
       routing="path"
       path="/sign-in"
-      fallbackRedirectUrl="/"
     >
       <SignIn.Step
         name="start"

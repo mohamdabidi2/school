@@ -72,23 +72,30 @@ buildProcess.on('close', (code) => {
   if (code === 0) {
     console.log('Build completed successfully!');
     process.exit(0);
-  } else if (fs.existsSync(nextDir) && fs.existsSync(serverDir)) {
-    // Check if error is related to client-reference-manifest
-    const isManifestError = stderr.includes('client-reference-manifest') || 
-                           stderr.includes('ENOENT') ||
-                           stdout.includes('client-reference-manifest');
+  } else {
+    // Check if error is related to client-reference-manifest (trace collection)
+    const isManifestError = (stderr.includes('client-reference-manifest') || 
+                            stderr.includes('ENOENT') ||
+                            stdout.includes('client-reference-manifest')) &&
+                            !stderr.includes('Type error') &&
+                            !stderr.includes('Failed to compile') &&
+                            !stdout.includes('Type error') &&
+                            !stdout.includes('Failed to compile');
     
-    if (isManifestError) {
+    // Check if build artifacts exist
+    const hasArtifacts = fs.existsSync(nextDir) && fs.existsSync(serverDir);
+    
+    if (isManifestError && hasArtifacts) {
+      // Only treat as success if it's a manifest error AND artifacts exist
       console.warn('Build trace collection error detected, but build artifacts exist.');
       console.warn('Manifest file created, treating as success.');
       process.exit(0);
     } else {
+      // Real compilation error - fail the build
       console.error('Build failed with code', code);
+      if (stderr) console.error('Error output:', stderr);
       process.exit(1);
     }
-  } else {
-    console.error('Build failed and no build artifacts found.');
-    process.exit(1);
   }
 });
 
