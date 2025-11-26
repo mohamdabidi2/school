@@ -17,8 +17,6 @@ import { Suspense } from "react";
 
 // Force dynamic rendering since we use auth() and searchParams
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-export const revalidate = 0;
 
 // Page d'accueil axée sur les graphiques (FR) — rendue selon le rôle
 const AccueilPage = async ({
