@@ -13,9 +13,12 @@ import NotificationManager from "@/components/NotificationManager";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 // Force dynamic rendering since we use auth() and searchParams
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const revalidate = 0;
 
 // Page d'accueil axée sur les graphiques (FR) — rendue selon le rôle
 const AccueilPage = async ({
@@ -191,12 +194,20 @@ const AccueilPage = async ({
       {/* PANNEAU LATÉRAL AVEC NOTIFS + AGENDA */}
       <div className="w-full lg:w-1/3 flex flex-col gap-8">
         <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <NotificationManager />
+          <Suspense fallback={<div className="p-4 text-center">Chargement...</div>}>
+            <NotificationManager />
+          </Suspense>
         </div>
         {/* Timetable always accessible in sidebar as well */}
-        <EventCalendarContainer searchParams={searchParams} />
+        <Suspense fallback={<div className="bg-white p-4 rounded-md text-center">Chargement...</div>}>
+          <EventCalendarContainer searchParams={searchParams} />
+        </Suspense>
         {/* Announcements in sidebar for visibility across roles */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border"><Announcements /></div>
+        <div className="bg-white p-4 rounded-lg shadow-sm border">
+          <Suspense fallback={<div className="p-4 text-center">Chargement...</div>}>
+            <Announcements />
+          </Suspense>
+        </div>
       </div>
     </div>
   );
