@@ -20,7 +20,7 @@ export interface AuditLog {
 export class AuditLogger {
   static async log(action: string, resource: string, details: string, resourceId?: string, success: boolean = true, errorMessage?: string) {
     try {
-      const { userId } = auth();
+      const { userId } = await auth();
       if (!userId) return;
 
       // Get user details from Clerk

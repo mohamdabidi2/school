@@ -5,8 +5,7 @@ import RealtimeMessaging from "./RealtimeMessaging";
 import { useState } from "react";
 
 const Navbar = async () => {
-  const { userId } = auth();
-  const { sessionClaims } = auth();
+  const { userId, sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role || "";
   
   // Get user's information from Clerk
@@ -19,7 +18,8 @@ const Navbar = async () => {
 
   if (userId) {
     try {
-      const user = await clerkClient.users.getUser(userId);
+      const clerk = await clerkClient();
+      const user = await clerk.users.getUser(userId);
       userInfo = {
         name: user.firstName && user.lastName 
           ? `${user.firstName} ${user.lastName}`.trim()

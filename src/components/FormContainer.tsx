@@ -30,7 +30,7 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
   let donneesLiees = {};
 
   // Authentification de l'utilisateur courant
-  const { userId, sessionClaims } = auth();
+  const { userId, sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
   const utilisateurActuelId = userId;
 
