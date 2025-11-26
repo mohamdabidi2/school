@@ -1,19 +1,22 @@
-import AttendanceChartContainer from "@/components/AttendanceChartContainer";
-import CountChartContainer from "@/components/CountChartContainer";
-import InstructorChartContainer from "@/components/InstructorChartContainer";
-import InstructorAbsenceChartContainer from "@/components/InstructorAbsenceChartContainer";
-import EventCalendarContainer from "@/components/EventCalendarContainer";
-import FinanceChartContainer from "@/components/FinanceChartContainer";
-import StudentPaymentsChartContainer from "@/components/StudentPaymentsChartContainer";
-import PaymentChartContainer from "@/components/PaymentChartContainer";
-import OverduePaymentsAlert from "@/components/OverduePaymentsAlert";
-import Announcements from "@/components/Announcements";
-import UserCard from "@/components/UserCard";
-import NotificationManager from "@/components/NotificationManager";
+import dynamic from "next/dynamic";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+
+// Dynamic imports to avoid build trace collection issues on Vercel
+const AttendanceChartContainer = dynamic(() => import("@/components/AttendanceChartContainer"));
+const CountChartContainer = dynamic(() => import("@/components/CountChartContainer"));
+const InstructorChartContainer = dynamic(() => import("@/components/InstructorChartContainer"));
+const InstructorAbsenceChartContainer = dynamic(() => import("@/components/InstructorAbsenceChartContainer"));
+const EventCalendarContainer = dynamic(() => import("@/components/EventCalendarContainer"));
+const FinanceChartContainer = dynamic(() => import("@/components/FinanceChartContainer"));
+const StudentPaymentsChartContainer = dynamic(() => import("@/components/StudentPaymentsChartContainer"));
+const PaymentChartContainer = dynamic(() => import("@/components/PaymentChartContainer"));
+const OverduePaymentsAlert = dynamic(() => import("@/components/OverduePaymentsAlert"));
+const Announcements = dynamic(() => import("@/components/Announcements"));
+const UserCard = dynamic(() => import("@/components/UserCard"));
+const NotificationManager = dynamic(() => import("@/components/NotificationManager"));
 
 // Force dynamic rendering since we use auth() and searchParams
 export const dynamic = 'force-dynamic';
