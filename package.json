@@ -16,8 +16,9 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@clerk/elements": "^0.14.6",
-    "@clerk/nextjs": "^5.4.1",
+    "@clerk/elements": "^0.15.0",
+    "@clerk/nextjs": "^6.35.5",
+    "@clerk/types": "^4.101.3",
     "@hookform/resolvers": "^3.9.0",
     "@prisma/client": "^5.19.1",
     "@types/pdfkit": "^0.17.3",
