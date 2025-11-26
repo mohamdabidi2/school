@@ -85,7 +85,8 @@ const SignInPageContent = () => {
         // Client-side redirect as fallback if middleware doesn't redirect
         if (!hasRedirected.current) {
           hasRedirected.current = true;
-          const redirectUrl = searchParams.get("redirect_url") || "/";
+          // Redirect to dashboard after login, or use redirect_url if provided
+          const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
           console.log("   └─ 🔄 CLIENT-SIDE REDIRECT to:", redirectUrl);
           console.log("   └─ Using router.replace to avoid full page reload");
           

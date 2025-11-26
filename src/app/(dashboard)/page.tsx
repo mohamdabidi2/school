@@ -1,7 +1,5 @@
 import dynamicImport from "next/dynamic";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import prisma from "@/lib/prisma";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 // Dynamic imports to avoid build trace collection issues on Vercel
@@ -33,28 +31,31 @@ const AccueilPage = async ({
   let role: string = "";
   let email: string | undefined;
   let roleContext: { parentId?: string; studentId?: string; teacherId?: string } = {};
+  
+  // Get all user data from Clerk publicMetadata - no database queries needed
   if (userId) {
     try {
       const clerk = await clerkClient();
       const clerkUser = await clerk.users.getUser(userId);
-      role = (clerkUser.publicMetadata?.role as string) || "";
+      const metadata = clerkUser.publicMetadata as { role?: string; teacherId?: string; studentId?: string; parentId?: string } | undefined;
+      
+      // Get role from publicMetadata
+      role = metadata?.role || "";
       email = clerkUser.emailAddresses?.[0]?.emailAddress;
-    } catch {}
-  }
-
-  // Resolve domain IDs primarily by Clerk userId, fallback to email
-  try {
-    if (role === "teacher") {
-      const teacher = await prisma.teacher.findFirst({ where: { OR: [{ id: userId || "" }, { email: email || undefined }] } });
-      if (teacher) roleContext.teacherId = teacher.id;
-    } else if (role === "student") {
-      const student = await prisma.student.findFirst({ where: { OR: [{ id: userId || "" }, { email: email || undefined }] } });
-      if (student) roleContext.studentId = student.id;
-    } else if (role === "parent") {
-      const parent = await prisma.parent.findFirst({ where: { OR: [{ id: userId || "" }, { email: email || undefined }] } });
-      if (parent) roleContext.parentId = parent.id;
+      
+      // Use userId directly as domain ID (Clerk userId = database ID)
+      // Also check publicMetadata for explicit IDs if they exist
+      if (role === "teacher") {
+        roleContext.teacherId = metadata?.teacherId || userId;
+      } else if (role === "student") {
+        roleContext.studentId = metadata?.studentId || userId;
+      } else if (role === "parent") {
+        roleContext.parentId = metadata?.parentId || userId;
+      }
+    } catch (error) {
+      console.error("Error fetching user from Clerk:", error);
     }
-  } catch {}
+  }
 
   const isAdminLike = ["admin", "director", "school-manager", "finance"].includes(role);
   const isTeacher = role === "teacher";
@@ -63,17 +64,8 @@ const AccueilPage = async ({
   const isFinance = role === "finance";
   const isAdmin = role === "admin" || role === "director" || role === "school-manager";
 
-  // Redirect teacher/student/parent to their respective profile pages
-  if (isTeacher && roleContext.teacherId) {
-    return redirect(`/list/teachers/${roleContext.teacherId}`);
-  }
-  if (role === "student" && roleContext.studentId) {
-    return redirect(`/list/students/${roleContext.studentId}`);
-  }
-  if (role === "parent" && roleContext.parentId) {
-    return redirect(`/list/parents/${roleContext.parentId}`);
-  }
-
+  // All users see the dashboard with role-based content
+  // No redirects - dashboard handles all roles appropriately
   return (
     <div className="p-2 lg:p-4 flex gap-2 lg:gap-4 flex-col lg:flex-row">
       {/* ZONE PRINCIPALE AVEC GRAPHIQUES SELON RÔLE */}

@@ -28,9 +28,9 @@ export default clerkMiddleware(async (auth, req) => {
     if (userId) {
       console.log("   └─ 🔄 User is authenticated on public route - REDIRECTING");
       
-      // Get redirect_url from query params if it exists, otherwise use "/"
+      // Get redirect_url from query params if it exists, otherwise use "/dashboard"
       const redirectUrlParam = searchParams.get("redirect_url");
-      const redirectUrl = redirectUrlParam || "/";
+      const redirectUrl = redirectUrlParam || "/dashboard";
       
       console.log("      ├─ redirect_url param:", redirectUrlParam);
       console.log("      ├─ Final redirect URL:", redirectUrl);
@@ -44,10 +44,10 @@ export default clerkMiddleware(async (auth, req) => {
         console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         return NextResponse.redirect(targetUrl);
       }
-      // Fallback to root
-      console.log("      └─ ⚠️ Invalid redirect URL, falling back to /");
+      // Fallback to dashboard
+      console.log("      └─ ⚠️ Invalid redirect URL, falling back to /dashboard");
       console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
     console.log("   └─ ✅ Public route, user not authenticated - ALLOWING ACCESS");
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
