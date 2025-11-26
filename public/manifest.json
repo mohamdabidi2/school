@@ -1,0 +1,71 @@
+{
+  "name": "GEOX School Management System",
+  "short_name": "GEOX School",
+  "description": "Système de gestion scolaire complet avec IA et communication temps réel",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "fr",
+  "categories": ["education", "productivity", "business"],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tableau de bord",
+      "short_name": "Dashboard",
+      "description": "Accéder au tableau de bord principal",
+      "url": "/",
+      "icons": [{ "src": "/home.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Messages",
+      "short_name": "Messages",
+      "description": "Messages en temps réel",
+      "url": "/list/messages",
+      "icons": [{ "src": "/message.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Élèves",
+      "short_name": "Élèves",
+      "description": "Gestion des élèves",
+      "url": "/list/students",
+      "icons": [{ "src": "/student.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Présence",
+      "short_name": "Présence",
+      "description": "Gestion des présences",
+      "url": "/list/attendance",
+      "icons": [{ "src": "/attendance.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot2.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}

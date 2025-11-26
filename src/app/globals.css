@@ -1,0 +1,275 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.react-calendar {
+  width: 100% !important;
+  border: none !important;
+  font-family: "Inter", sans-serif !important;
+}
+
+.react-calendar__navigation__label__labelText {
+  font-weight: 600;
+}
+
+.react-calendar__tile--active {
+  background-color: #c3ebfa !important;
+  color: black !important;
+}
+
+.rbc-btn-group:first-child {
+  display: none !important;
+}
+
+.rbc-toolbar-label {
+  text-align: right !important;
+  padding: 0px 20px !important;
+}
+
+.rbc-btn-group:last-child {
+  font-size: 13px !important;
+}
+
+.rbc-btn-group:last-child button {
+  border: none !important;
+  background-color: #f1f0ff !important;
+  margin-left: 2px !important;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #dbdafe !important;
+  box-shadow: none !important;
+}
+
+.rbc-time-view {
+  border-color: #eee !important;
+}
+
+.rbc-time-header {
+  display: none !important;
+}
+
+.rbc-time-content {
+  border: none !important;
+}
+
+.rbc-time-gutter.rbc-time-column {
+  font-size: 12px !important;
+}
+
+.rbc-time-gutter.rbc-time-column .rbc-timeslot-group {
+  padding: 0px 20px !important;
+}
+
+.rbc-timeslot-group {
+  background-color: #f7fdff !important;
+}
+
+.rbc-day-slot {
+  font-size: 14px !important;
+}
+
+.rbc-event {
+  border: none !important;
+  color: black !important;
+  padding: 10px !important;
+  margin: 10px !important;
+  width: 99% !important;
+}
+
+.rbc-event:nth-child(1) {
+  background-color: #e2f8ff !important;
+}
+.rbc-event:nth-child(2) {
+  background-color: #fefce8 !important;
+}
+.rbc-event:nth-child(3) {
+  background-color: #f2f1ff !important;
+}
+.rbc-event:nth-child(4) {
+  background-color: #fdf2fb !important;
+}
+.rbc-event:nth-child(5) {
+  background-color: #e2f8ff !important;
+}
+.rbc-event:nth-child(6) {
+  background-color: #fefce8 !important;
+}
+.rbc-event:nth-child(7) {
+  background-color: #f2f1ff !important;
+}
+.rbc-event:nth-child(8) {
+  background-color: #fdf2fb !important;
+}
+
+.rbc-event-label{
+  color: gray !important;
+  margin-bottom: 5px;
+}
+
+@layer components {
+  .form-card {
+    @apply flex flex-col gap-8 rounded-3xl border border-slate-100 bg-white/95 p-6 shadow-xl shadow-slate-200/60 w-full;
+  }
+
+  .form-grid {
+    @apply flex flex-wrap gap-4;
+  }
+
+  .form-section-label {
+    @apply text-xs font-semibold uppercase tracking-[0.3em] text-slate-400;
+  }
+
+  .form-field {
+    @apply flex flex-col gap-2 w-full md:w-[calc(50%-0.5rem)] xl:w-[calc(33.333%-0.5rem)];
+  }
+
+  .input-label {
+    @apply text-xs font-medium text-slate-500;
+  }
+
+  .form-input {
+    @apply h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/20 transition-all shadow-inner disabled:bg-slate-100 disabled:text-slate-400;
+  }
+
+  .form-select {
+    @apply form-input appearance-none bg-white pr-10;
+  }
+
+  .form-textarea {
+    @apply form-input min-h-[140px] py-3;
+  }
+
+  .form-primary-btn {
+    @apply inline-flex w-fit items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5 hover:bg-slate-800;
+  }
+
+  .form-secondary-btn {
+    @apply inline-flex w-fit items-center justify-center gap-2 rounded-2xl border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-300;
+  }
+
+  .form-status {
+    @apply rounded-2xl bg-red-50 px-4 py-2 text-sm font-medium text-red-600;
+  }
+
+  form.flex.flex-col.gap-8 {
+    @apply space-y-8 rounded-3xl border border-slate-100 bg-white/95 p-6 shadow-xl shadow-slate-200/60;
+  }
+
+  form.flex.flex-col.gap-8 h1 {
+    @apply text-2xl font-semibold text-slate-900;
+  }
+
+  form.flex.flex-col.gap-8 span[class*="text-gray-400"] {
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    color: rgb(148 163 184);
+  }
+
+  form.flex.flex-col.gap-8 button.bg-blue-400 {
+    @apply form-primary-btn;
+  }
+
+  form.flex.flex-col.gap-8 input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+    @apply form-input;
+  }
+
+  form.flex.flex-col.gap-8 select {
+    @apply form-select;
+  }
+
+  form.flex.flex-col.gap-8 textarea {
+    @apply form-textarea;
+  }
+
+  form.flex.flex-col.gap-8 p[class*="text-red"] {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+    color: rgb(239 68 68);
+  }
+
+  form.flex.flex-col.gap-8 span[class*="text-red"] {
+    border-radius: 1rem;
+    background-color: rgb(254 242 242);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: rgb(220 38 38);
+  }
+
+  .styled-form {
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: min(2rem, 5vw);
+  }
+
+  .styled-form::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .styled-form::-webkit-scrollbar-thumb {
+    background-color: rgb(148 163 184);
+    border-radius: 999px;
+  }
+
+  .responsive-table {
+    width: 100%;
+  }
+
+  .responsive-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  @media (max-width: 768px) {
+    .responsive-table table,
+    .responsive-table thead,
+    .responsive-table tbody,
+    .responsive-table th,
+    .responsive-table tr,
+    .responsive-table td {
+      display: block;
+      width: 100%;
+    }
+
+    .responsive-table thead {
+      display: none;
+    }
+
+    .responsive-table tbody {
+      display: block;
+    }
+
+    .responsive-table tr {
+      margin-bottom: 1rem;
+      border: 1px solid rgb(226 232 240);
+      border-radius: 1rem;
+      background-color: white;
+      box-shadow: 0 10px 25px -12px rgb(15 23 42 / 0.4);
+      overflow: hidden;
+    }
+
+    .responsive-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgb(241 245 249);
+    }
+
+    .responsive-table td:last-child {
+      border-bottom: none;
+    }
+
+    .responsive-table td.flex {
+      display: flex;
+    }
+
+    .responsive-table td.hidden {
+      display: none;
+    }
+  }
+}
