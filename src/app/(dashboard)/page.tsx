@@ -37,6 +37,22 @@ const AccueilPage = async ({
   console.log("📊 [DASHBOARD] Fetching user data from Clerk");
   console.log("   ├─ userId:", userId ? `✅ ${userId}` : "❌ null");
   
+  // If no userId, redirect to sign-in (middleware should catch this, but safety check)
+  if (!userId) {
+    console.log("   └─ ❌ No userId in dashboard - this should not happen if middleware works");
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    // Don't redirect here - let middleware handle it to avoid loops
+    // Just return a loading state
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Vérification de l'authentification...</p>
+        </div>
+      </div>
+    );
+  }
+  
   // Get all user data from Clerk publicMetadata - no database queries needed
   if (userId) {
     try {
