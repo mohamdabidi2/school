@@ -99,18 +99,29 @@ const SignInPageContent = () => {
     );
   }
 
-  // If signed in, show loading while middleware redirects
-  // DO NOT redirect here - let middleware handle it completely to avoid loops
+  // If signed in, redirect immediately to dashboard
+  // This ensures direct redirect after successful login
   if (isSignedIn) {
     const role = user?.publicMetadata?.role as string || "";
-    console.log("🔴 [STEP 5] User is signed in - middleware will redirect");
-    console.log("   └─ 🔑 ROLE FROM USER:", role || "❌ NO ROLE");
-    console.log("   └─ ⚠️ NOT redirecting client-side - middleware handles this");
+    console.log("🔴 [STEP 5] ✅ LOGIN SUCCESSFUL - User is signed in");
+    console.log("   └─ 🔑 USER ROLE:", role || "❌ NO ROLE");
+    
+    // Immediate redirect to dashboard - only if still on sign-in page
+    if (typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      if (currentPath === "/sign-in" || currentPath.startsWith("/sign-in")) {
+        const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
+        console.log("   └─ 🔄 Redirecting to:", redirectUrl);
+        // Use replace to avoid adding to history and prevent back button issues
+        window.location.replace(redirectUrl);
+      }
+    }
+    
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirection...</p>
+          <p className="text-gray-600">Connexion réussie! Redirection vers le tableau de bord...</p>
         </div>
       </div>
     );
