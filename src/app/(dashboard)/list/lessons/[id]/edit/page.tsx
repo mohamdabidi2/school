@@ -19,7 +19,6 @@ const EditLessonPage = async ({ params }: { params: { id: string } }) => {
         type="update"
         data={lesson as any}
         relatedData={{ subjects, classes, teachers }}
-        setOpen={() => {}}
       />
     </div>
   );

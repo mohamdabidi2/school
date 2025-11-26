@@ -8,11 +8,7 @@ const NewLessonPage = async () => {
 
   return (
     <div className="bg-white p-4 rounded-md m-4">
-      <LessonForm
-        type="create"
-        relatedData={{ subjects, classes, teachers }}
-        setOpen={() => {}}
-      />
+      <LessonForm type="create" relatedData={{ subjects, classes, teachers }} />
     </div>
   );
 };

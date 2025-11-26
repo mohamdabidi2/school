@@ -18,7 +18,7 @@ const LessonForm = ({
 }: {
   type: "create" | "update";
   data?: any;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpen?: Dispatch<SetStateAction<boolean>>;
   relatedData?: any;
 }) => {
   const {
@@ -46,7 +46,9 @@ const LessonForm = ({
   useEffect(() => {
     if (state.success) {
       toast(`La leçon a été ${type === "create" ? "créée" : "modifiée"} !`);
-      setOpen(false);
+      if (setOpen) {
+        setOpen(false);
+      }
       router.refresh();
     }
   }, [state, router, type, setOpen]);

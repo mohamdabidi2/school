@@ -99,7 +99,7 @@ const formComponentMap: {
   [key: string]: React.ComponentType<{
     type: "create" | "update";
     data?: any;
-    setOpen: Dispatch<SetStateAction<boolean>>;
+    setOpen?: Dispatch<SetStateAction<boolean>>;
     relatedData?: any;
   }>;
 } = {
