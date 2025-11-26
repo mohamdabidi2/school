@@ -1,0 +1,3 @@
+# This file ensures Vercel doesn't cache problematic files
+.next/cache
+
