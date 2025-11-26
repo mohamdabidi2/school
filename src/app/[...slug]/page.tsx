@@ -1,6 +1,13 @@
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 export default async function CatchAllPage() {
-  // Redirect any incorrect route to login
-  redirect("/sign-in");
+  const { userId } = await auth();
+  
+  // If authenticated, redirect to dashboard; otherwise to sign-in
+  if (userId) {
+    redirect("/dashboard");
+  } else {
+    redirect("/sign-in");
+  }
 }

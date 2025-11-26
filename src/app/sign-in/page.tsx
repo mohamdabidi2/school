@@ -75,16 +75,21 @@ const SignInPageContent = () => {
   }, [isLoaded, isSignedIn, user, searchParams]);
 
   // If user is signed in and we're still on sign-in page, redirect immediately
-  // This is a fallback in case middleware redirect didn't work
+  // This is a fallback in case middleware redirect didn't work (shouldn't happen, but safety net)
   useEffect(() => {
     if (isLoaded && isSignedIn && typeof window !== "undefined" && !hasRedirected.current) {
       const currentPath = window.location.pathname;
+      // Only redirect if we're actually on the sign-in page
       if (currentPath === "/sign-in" || currentPath.startsWith("/sign-in")) {
         hasRedirected.current = true;
         const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
         console.log("   └─ 🔄 FALLBACK REDIRECT: Still on sign-in page, redirecting to:", redirectUrl);
-        // Use replace to avoid adding to history
-        window.location.replace(redirectUrl);
+        // Small delay to let middleware handle it first, then fallback
+        setTimeout(() => {
+          if (window.location.pathname === "/sign-in" || window.location.pathname.startsWith("/sign-in")) {
+            window.location.replace(redirectUrl);
+          }
+        }, 100);
       }
     }
   }, [isLoaded, isSignedIn, searchParams]);
