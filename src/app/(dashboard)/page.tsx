@@ -26,7 +26,8 @@ const AccueilPage = async ({
   let roleContext: { parentId?: string; studentId?: string; teacherId?: string } = {};
   if (userId) {
     try {
-      const clerkUser = await clerkClient.users.getUser(userId);
+      const clerk = await clerkClient();
+      const clerkUser = await clerk.users.getUser(userId);
       role = (clerkUser.publicMetadata?.role as string) || "";
       email = clerkUser.emailAddresses?.[0]?.emailAddress;
     } catch {}

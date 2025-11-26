@@ -10,7 +10,8 @@ export default async function HomePage() {
   
   // Get user role and redirect
   try {
-    const clerkUser = await clerkClient.users.getUser(userId);
+    const clerk = await clerkClient();
+    const clerkUser = await clerk.users.getUser(userId);
     const role = clerkUser.publicMetadata?.role as string | undefined;
     const email = clerkUser.emailAddresses?.[0]?.emailAddress;
 
