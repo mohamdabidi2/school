@@ -5,7 +5,7 @@ import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
 import { Suspense, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const SignInForm = () => {
   return (
@@ -54,15 +54,24 @@ const SignInForm = () => {
   );
 };
 
-const PageConnexion = () => {
+const SignInPageContent = () => {
   const { isSignedIn, isLoaded } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      router.replace("/");
+      // Get redirect URL from query params or default to "/"
+      const redirectUrl = searchParams.get("redirect_url") || "/";
+      
+      // Use window.location for a hard redirect to ensure it works
+      if (redirectUrl.startsWith("/")) {
+        window.location.href = redirectUrl;
+      } else {
+        router.replace(redirectUrl);
+      }
     }
-  }, [isSignedIn, isLoaded, router]);
+  }, [isSignedIn, isLoaded, router, searchParams]);
 
   // Show loading while checking auth status
   if (!isLoaded) {
@@ -76,9 +85,16 @@ const PageConnexion = () => {
     );
   }
 
-  // If signed in, don't render the form (redirect will happen)
+  // If signed in, show loading while redirect happens
   if (isSignedIn) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirection...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -96,6 +112,21 @@ const PageConnexion = () => {
         </Suspense>
       </div>
     </div>
+  );
+};
+
+const PageConnexion = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    }>
+      <SignInPageContent />
+    </Suspense>
   );
 };
 
