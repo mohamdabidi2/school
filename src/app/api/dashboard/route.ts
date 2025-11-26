@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     // Get user from Clerk to get role
-    const clerkUser = await clerkClient().users.getUser(userId);
+    const clerkUser = await clerkClient.users.getUser(userId);
     const role = clerkUser.publicMetadata?.role as string || "";
 
     // Fetch data based on role
