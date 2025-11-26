@@ -3,9 +3,9 @@
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 const SignInForm = () => {
   useEffect(() => {
@@ -61,6 +61,8 @@ const SignInForm = () => {
 const SignInPageContent = () => {
   const { isSignedIn, isLoaded, user } = useUser();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const hasRedirected = useRef(false);
 
   // Step-by-step debug logging
   useEffect(() => {
@@ -73,19 +75,30 @@ const SignInPageContent = () => {
     console.log("   └─ redirect_url param:", searchParams.get("redirect_url"));
   }, [isLoaded, isSignedIn, user, searchParams]);
 
-  // Track state changes
+  // Track state changes and handle redirect
   useEffect(() => {
     if (isLoaded) {
       console.log("🟡 [STEP 3] Auth state loaded");
       if (isSignedIn) {
-        console.log("   └─ ✅ User is SIGNED IN - waiting for middleware redirect");
+        console.log("   └─ ✅ User is SIGNED IN");
+        
+        // Client-side redirect as fallback if middleware doesn't redirect
+        if (!hasRedirected.current) {
+          hasRedirected.current = true;
+          const redirectUrl = searchParams.get("redirect_url") || "/";
+          console.log("   └─ 🔄 CLIENT-SIDE REDIRECT to:", redirectUrl);
+          console.log("   └─ Using router.replace to avoid full page reload");
+          
+          // Use router.replace for internal routes
+          router.replace(redirectUrl);
+        }
       } else {
         console.log("   └─ ❌ User is NOT signed in - showing sign-in form");
       }
     } else {
       console.log("🟡 [STEP 3] Auth state loading...");
     }
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, searchParams, router]);
 
   // Show loading while checking auth status
   if (!isLoaded) {
@@ -100,12 +113,17 @@ const SignInPageContent = () => {
     );
   }
 
-  // If signed in, don't render anything - middleware will handle redirect
-  // This prevents the toggle between loading states
+  // If signed in, show loading while redirect happens
   if (isSignedIn) {
-    console.log("🔴 [STEP 5] User is signed in - returning null (middleware should redirect)");
-    console.log("   └─ Expected: Middleware should redirect to / or redirect_url");
-    return null;
+    console.log("🔴 [STEP 5] User is signed in - showing redirect loading state");
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirection...</p>
+        </div>
+      </div>
+    );
   }
 
   console.log("🟣 [STEP 6] Rendering: Sign-in form (user not authenticated)");
