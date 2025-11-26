@@ -95,14 +95,8 @@ const StaffForm = dynamic(() => import("./forms/StaffForm"), {
 // TODO : Autres formulaires à charger dynamiquement
 
 // Dictionnaire des composants de formulaire selon la table
-const formComponentMap: {
-  [key: string]: React.ComponentType<{
-    type: "create" | "update";
-    data?: any;
-    setOpen?: Dispatch<SetStateAction<boolean>>;
-    relatedData?: any;
-  }>;
-} = {
+// On garde le typage souple côté map pour éviter les conflits de props entre formulaires.
+const formComponentMap: Record<string, React.ComponentType<any>> = {
   subject: SubjectForm,
   class: ClassForm,
   teacher: TeacherForm,
