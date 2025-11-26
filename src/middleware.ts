@@ -13,12 +13,21 @@ export default clerkMiddleware(async (auth, req) => {
 
   // Allow public routes
   if (publicRoutes(req)) {
-    // If already signed in, redirect to root (which will redirect based on role)
-    // But only if not already redirected to avoid loops
-    if (userId && !req.nextUrl.searchParams.get("redirected")) {
-      const redirectUrl = new URL("/", req.url);
-      redirectUrl.searchParams.set("redirected", "true");
-      return NextResponse.redirect(redirectUrl);
+    // If already signed in, redirect immediately
+    if (userId) {
+      // Get redirect_url from query params if it exists, otherwise use "/"
+      const redirectUrlParam = req.nextUrl.searchParams.get("redirect_url");
+      const redirectUrl = redirectUrlParam || "/";
+      
+      // Only redirect if it's a valid internal path (starts with / and not //)
+      if (redirectUrl.startsWith("/") && !redirectUrl.startsWith("//")) {
+        const targetUrl = new URL(redirectUrl, req.url);
+        // Clean up the URL - remove query params
+        targetUrl.search = "";
+        return NextResponse.redirect(targetUrl);
+      }
+      // Fallback to root
+      return NextResponse.redirect(new URL("/", req.url));
     }
     return NextResponse.next();
   }
@@ -26,8 +35,8 @@ export default clerkMiddleware(async (auth, req) => {
   // Protect all other routes - just check if user is authenticated
   if (!userId) {
     const signInUrl = new URL("/sign-in", req.url);
-    // Only add redirect_url if we're not already on sign-in
-    if (pathname !== "/sign-in") {
+    // Only add redirect_url if we're not already on sign-in and it's a valid path
+    if (pathname !== "/sign-in" && pathname !== "/") {
       signInUrl.searchParams.set("redirect_url", pathname);
     }
     return NextResponse.redirect(signInUrl);
