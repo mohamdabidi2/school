@@ -7,10 +7,6 @@ const nextConfig = {
       { hostname: "img.clerk.com" },
     ],
   },
-  // Disable experimental features that might cause build trace issues
-  experimental: {
-    serverComponentsExternalPackages: [],
-  },
 };
 
 export default nextConfig;

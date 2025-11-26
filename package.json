@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:strict": "next build",
     "start": "next start",
     "lint": "next lint",
     "websocket": "node websocket-server.js",
@@ -16,7 +17,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.34.0",
+    "@clerk/nextjs": "^6.35.5",
     "@clerk/elements": "^0.23.8",
     "@hookform/resolvers": "^3.9.0",
     "@prisma/client": "^5.19.1",
@@ -26,7 +27,7 @@
     "crypto": "^1.0.1",
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.30.1",
-    "next": "14.2.26",
+    "next": "^14.2.33",
     "next-cloudinary": "^6.13.0",
     "nodemailer": "^6.9.7",
     "pdfkit": "^0.17.2",
@@ -57,7 +58,7 @@
     "@types/ws": "^8.5.10",
     "concurrently": "^8.2.2",
     "eslint": "^8",
-    "eslint-config-next": "14.2.26",
+    "eslint-config-next": "^14.2.33",
     "marked": "^17.0.0",
     "md-to-pdf": "^5.2.4",
     "postcss": "^8",
