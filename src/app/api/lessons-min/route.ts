@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
   try {
-    const { userId, sessionClaims } = auth();
+    const { userId, sessionClaims } = await auth();
     const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role;
 
     const where: any = {};

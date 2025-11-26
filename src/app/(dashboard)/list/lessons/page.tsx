@@ -20,7 +20,7 @@ const LessonListPage = async ({
 }) => {
 
   // Authentification et récupération du rôle de l'utilisateur
-  const { userId, sessionClaims } = auth();
+  const { userId, sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
   // Définition des colonnes du tableau, avec l'affichage conditionnel selon le rôle
