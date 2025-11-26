@@ -58,7 +58,6 @@
     "concurrently": "^8.2.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
-    "markdown-pdf": "^11.0.0",
     "marked": "^17.0.0",
     "md-to-pdf": "^5.2.4",
     "postcss": "^8",
