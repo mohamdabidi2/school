@@ -74,29 +74,18 @@ const SignInPageContent = () => {
     console.log("   └─ redirect_url param:", searchParams.get("redirect_url"));
   }, [isLoaded, isSignedIn, user, searchParams]);
 
-  // Track state changes and handle redirect
+  // If user is signed in and we're still on sign-in page, redirect immediately
+  // This is a fallback in case middleware redirect didn't work
   useEffect(() => {
-    if (isLoaded) {
-      console.log("🟡 [STEP 3] Auth state loaded");
-      if (isSignedIn) {
-        console.log("   └─ ✅ User is SIGNED IN");
-        
-        // Client-side redirect as fallback if middleware doesn't redirect
-        if (!hasRedirected.current) {
-          hasRedirected.current = true;
-          // Redirect to dashboard after login, or use redirect_url if provided
-          const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
-          console.log("   └─ 🔄 CLIENT-SIDE REDIRECT to:", redirectUrl);
-          console.log("   └─ Using window.location.replace for reliable redirect");
-          
-          // Use window.location.replace for a hard redirect that works reliably
-          window.location.replace(redirectUrl);
-        }
-      } else {
-        console.log("   └─ ❌ User is NOT signed in - showing sign-in form");
+    if (isLoaded && isSignedIn && typeof window !== "undefined" && !hasRedirected.current) {
+      const currentPath = window.location.pathname;
+      if (currentPath === "/sign-in" || currentPath.startsWith("/sign-in")) {
+        hasRedirected.current = true;
+        const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
+        console.log("   └─ 🔄 FALLBACK REDIRECT: Still on sign-in page, redirecting to:", redirectUrl);
+        // Use replace to avoid adding to history
+        window.location.replace(redirectUrl);
       }
-    } else {
-      console.log("🟡 [STEP 3] Auth state loading...");
     }
   }, [isLoaded, isSignedIn, searchParams]);
 
@@ -113,9 +102,10 @@ const SignInPageContent = () => {
     );
   }
 
-  // If signed in, show loading while redirect happens
+  // If signed in, show loading while middleware redirects
+  // Middleware will handle the redirect, so we just show a loading state
   if (isSignedIn) {
-    console.log("🔴 [STEP 5] User is signed in - showing redirect loading state");
+    console.log("🔴 [STEP 5] User is signed in - middleware will redirect");
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
         <div className="text-center">
