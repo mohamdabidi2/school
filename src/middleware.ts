@@ -14,15 +14,23 @@ export default clerkMiddleware(async (auth, req) => {
   // Allow public routes
   if (publicRoutes(req)) {
     // If already signed in, redirect to root (which will redirect based on role)
-    if (userId) {
-      return NextResponse.redirect(new URL("/", req.url));
+    // But only if not already redirected to avoid loops
+    if (userId && !req.nextUrl.searchParams.get("redirected")) {
+      const redirectUrl = new URL("/", req.url);
+      redirectUrl.searchParams.set("redirected", "true");
+      return NextResponse.redirect(redirectUrl);
     }
     return NextResponse.next();
   }
 
   // Protect all other routes - just check if user is authenticated
   if (!userId) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
+    const signInUrl = new URL("/sign-in", req.url);
+    // Only add redirect_url if we're not already on sign-in
+    if (pathname !== "/sign-in") {
+      signInUrl.searchParams.set("redirect_url", pathname);
+    }
+    return NextResponse.redirect(signInUrl);
   }
 
   // Allow access for all authenticated users
