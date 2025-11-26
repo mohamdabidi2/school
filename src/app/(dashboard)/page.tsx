@@ -1,22 +1,22 @@
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 // Dynamic imports to avoid build trace collection issues on Vercel
-const AttendanceChartContainer = dynamic(() => import("@/components/AttendanceChartContainer"));
-const CountChartContainer = dynamic(() => import("@/components/CountChartContainer"));
-const InstructorChartContainer = dynamic(() => import("@/components/InstructorChartContainer"));
-const InstructorAbsenceChartContainer = dynamic(() => import("@/components/InstructorAbsenceChartContainer"));
-const EventCalendarContainer = dynamic(() => import("@/components/EventCalendarContainer"));
-const FinanceChartContainer = dynamic(() => import("@/components/FinanceChartContainer"));
-const StudentPaymentsChartContainer = dynamic(() => import("@/components/StudentPaymentsChartContainer"));
-const PaymentChartContainer = dynamic(() => import("@/components/PaymentChartContainer"));
-const OverduePaymentsAlert = dynamic(() => import("@/components/OverduePaymentsAlert"));
-const Announcements = dynamic(() => import("@/components/Announcements"));
-const UserCard = dynamic(() => import("@/components/UserCard"));
-const NotificationManager = dynamic(() => import("@/components/NotificationManager"));
+const AttendanceChartContainer = dynamicImport(() => import("@/components/AttendanceChartContainer"));
+const CountChartContainer = dynamicImport(() => import("@/components/CountChartContainer"));
+const InstructorChartContainer = dynamicImport(() => import("@/components/InstructorChartContainer"));
+const InstructorAbsenceChartContainer = dynamicImport(() => import("@/components/InstructorAbsenceChartContainer"));
+const EventCalendarContainer = dynamicImport(() => import("@/components/EventCalendarContainer"));
+const FinanceChartContainer = dynamicImport(() => import("@/components/FinanceChartContainer"));
+const StudentPaymentsChartContainer = dynamicImport(() => import("@/components/StudentPaymentsChartContainer"));
+const PaymentChartContainer = dynamicImport(() => import("@/components/PaymentChartContainer"));
+const OverduePaymentsAlert = dynamicImport(() => import("@/components/OverduePaymentsAlert"));
+const Announcements = dynamicImport(() => import("@/components/Announcements"));
+const UserCard = dynamicImport(() => import("@/components/UserCard"));
+const NotificationManager = dynamicImport(() => import("@/components/NotificationManager"));
 
 // Force dynamic rendering since we use auth() and searchParams
 export const dynamic = 'force-dynamic';
