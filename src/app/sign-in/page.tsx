@@ -3,6 +3,54 @@
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
+import { Suspense } from "react";
+
+const SignInForm = () => {
+  return (
+    <SignIn.Root 
+      routing="path"
+      path="/sign-in"
+    >
+      <SignIn.Step
+        name="start"
+        className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col gap-6"
+      >
+        <Clerk.GlobalError className="text-sm text-red-500 mb-2 text-center" />
+        <Clerk.Field name="identifier" className="flex flex-col gap-1">
+          <Clerk.Label className="text-sm text-gray-600 font-semibold mb-1">
+            Nom d&apos;utilisateur
+          </Clerk.Label>
+          <Clerk.Input
+            type="text"
+            required
+            autoFocus
+            className="p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none transition"
+            placeholder="Entrez votre nom d&apos;utilisateur"
+          />
+          <Clerk.FieldError className="text-xs text-red-400 mt-1" />
+        </Clerk.Field>
+        <Clerk.Field name="password" className="flex flex-col gap-1">
+          <Clerk.Label className="text-sm text-gray-600 font-semibold mb-1">
+            Mot de passe
+          </Clerk.Label>
+          <Clerk.Input
+            type="password"
+            required
+            className="p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none transition"
+            placeholder="Entrez votre mot de passe"
+          />
+          <Clerk.FieldError className="text-xs text-red-400 mt-1" />
+        </Clerk.Field>
+        <SignIn.Action
+          submit
+          className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold rounded-lg text-base py-3 mt-2 shadow-md"
+        >
+          Se connecter
+        </SignIn.Action>
+      </SignIn.Step>
+    </SignIn.Root>
+  );
+};
 
 const PageConnexion = () => {
   return (
@@ -15,48 +63,9 @@ const PageConnexion = () => {
           <h1 className="text-3xl font-extrabold text-blue-700 tracking-tight mb-1">GEOX School</h1>
           <h2 className="text-lg text-gray-500 font-medium">Connectez-vous à votre compte</h2>
         </div>
-        <SignIn.Root 
-          routing="path"
-          path="/sign-in"
-        >
-          <SignIn.Step
-            name="start"
-            className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col gap-6"
-          >
-            <Clerk.GlobalError className="text-sm text-red-500 mb-2 text-center" />
-            <Clerk.Field name="identifier" className="flex flex-col gap-1">
-              <Clerk.Label className="text-sm text-gray-600 font-semibold mb-1">
-                Nom d&apos;utilisateur
-              </Clerk.Label>
-              <Clerk.Input
-                type="text"
-                required
-                autoFocus
-                className="p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none transition"
-                placeholder="Entrez votre nom d&apos;utilisateur"
-              />
-              <Clerk.FieldError className="text-xs text-red-400 mt-1" />
-            </Clerk.Field>
-            <Clerk.Field name="password" className="flex flex-col gap-1">
-              <Clerk.Label className="text-sm text-gray-600 font-semibold mb-1">
-                Mot de passe
-              </Clerk.Label>
-              <Clerk.Input
-                type="password"
-                required
-                className="p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none transition"
-                placeholder="Entrez votre mot de passe"
-              />
-              <Clerk.FieldError className="text-xs text-red-400 mt-1" />
-            </Clerk.Field>
-            <SignIn.Action
-              submit
-              className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold rounded-lg text-base py-3 mt-2 shadow-md"
-            >
-              Se connecter
-            </SignIn.Action>
-          </SignIn.Step>
-        </SignIn.Root>
+        <Suspense fallback={<div className="bg-white p-8 rounded-2xl shadow-2xl text-center">Chargement...</div>}>
+          <SignInForm />
+        </Suspense>
       </div>
     </div>
   );
