@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) return new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } });
     const messages = await prisma.message.findMany({
       where: { senderId: userId },

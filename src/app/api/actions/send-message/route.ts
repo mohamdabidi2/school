@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) return new Response(JSON.stringify({ error: "Non authentifié" }), { status: 401, headers: { "Content-Type": "application/json" } });
 
     let body: any = {};

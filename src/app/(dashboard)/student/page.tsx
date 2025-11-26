@@ -7,7 +7,7 @@ import { auth } from "@clerk/nextjs/server";
 
 // Page Étudiant (FR)
 const PageEtudiant = async () => {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   // Récupération de la classe de l'étudiant connecté
   const classe = await prisma.class.findFirst({

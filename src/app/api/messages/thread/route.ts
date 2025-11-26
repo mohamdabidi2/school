@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) return new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } });
     const { searchParams } = new URL(request.url);
     const peerId = searchParams.get('peerId');

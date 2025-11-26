@@ -5,7 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 
 // Page Parent (FR)
 const PageParent = async () => {
-  const { userId } = auth();
+  const { userId } = await auth();
   const currentUserId = userId;
 
   // Récupérer les élèves liés à ce parent

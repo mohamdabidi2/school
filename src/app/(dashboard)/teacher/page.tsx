@@ -3,8 +3,8 @@ import BigCalendarContainer from "@/components/BigCalendarContainer";
 import { auth } from "@clerk/nextjs/server";
 
 // Page Enseignant (FR)
-const PageEnseignant = () => {
-  const { userId } = auth();
+const PageEnseignant = async () => {
+  const { userId } = await auth();
   return (
     <div className="flex-1 p-4 flex gap-4 flex-col xl:flex-row">
       {/* GAUCHE */}

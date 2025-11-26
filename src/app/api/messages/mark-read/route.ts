@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function POST(request: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) return new Response(JSON.stringify({ error: 'Non authentifié' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     const { id } = await request.json();
     if (!id) return new Response(JSON.stringify({ error: 'ID requis' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
