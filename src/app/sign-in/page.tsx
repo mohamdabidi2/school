@@ -61,16 +61,24 @@ const SignInPage = () => {
   const hasRedirected = useRef(false);
 
   useEffect(() => {
+    console.log("[SignIn] Effect triggered", {
+      isLoaded,
+      isSignedIn,
+      hasRedirected: hasRedirected.current,
+      role: user?.publicMetadata?.role,
+    });
     if (isLoaded && isSignedIn && !hasRedirected.current) {
-      hasRedirected.current = true;
       const role = user?.publicMetadata?.role as string | undefined;
       const target = getRoleRedirect(role);
+      console.log("[SignIn] Redirecting user", { role, target });
+      hasRedirected.current = true;
       router.replace(target);
     }
   }, [isLoaded, isSignedIn, user, router]);
 
   // Show loading while auth loads
   if (!isLoaded) {
+    console.log("[SignIn] Auth not loaded yet - showing spinner");
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
         <div className="text-center">
