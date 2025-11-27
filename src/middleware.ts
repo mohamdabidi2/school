@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PATHS = [/^\/sign-in(\/.*)?$/];
+const PUBLIC_PATHS = [
+  /^\/sign-in(\/.*)?$/,
+  /^\/manifest\.json$/,
+  /^\/sw\.js$/,
+];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
