@@ -62,7 +62,7 @@ const SignInPage = () => {
   useEffect(() => {
     if (isLoaded && isSignedIn && !hasRedirected.current) {
       hasRedirected.current = true;
-      router.replace("/");
+      router.replace("/dashboard");
     }
   }, [isLoaded, isSignedIn, router]);
 

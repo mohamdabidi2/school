@@ -10,10 +10,6 @@ const publicRoutes = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
 
-  if (publicRoutes(req) && userId) {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
-
   if (!publicRoutes(req) && !userId) {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
