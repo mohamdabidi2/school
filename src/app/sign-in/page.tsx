@@ -5,7 +5,6 @@ import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
 import { Suspense, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 
 const SignInForm = () => {
   return (
@@ -56,15 +55,14 @@ const SignInForm = () => {
 
 const SignInPage = () => {
   const { isSignedIn, isLoaded } = useUser();
-  const router = useRouter();
   const hasRedirected = useRef(false);
 
   useEffect(() => {
-    if (isLoaded && isSignedIn && !hasRedirected.current) {
+    if (isLoaded && isSignedIn && typeof window !== "undefined" && !hasRedirected.current) {
       hasRedirected.current = true;
-      router.replace("/dashboard");
+      window.location.href = "/dashboard";
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [isLoaded, isSignedIn]);
 
   // Show loading while auth loads
   if (!isLoaded) {
