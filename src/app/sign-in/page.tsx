@@ -3,8 +3,9 @@
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const SignInForm = () => {
   return (
@@ -55,6 +56,15 @@ const SignInForm = () => {
 
 const SignInPage = () => {
   const { isSignedIn, isLoaded } = useUser();
+  const router = useRouter();
+  const hasRedirected = useRef(false);
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn && !hasRedirected.current) {
+      hasRedirected.current = true;
+      router.replace("/");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   // Show loading while auth loads
   if (!isLoaded) {
@@ -68,7 +78,16 @@ const SignInPage = () => {
     );
   }
 
-  if (isSignedIn) return null;
+  if (isSignedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirection...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show sign-in form
   return (
