@@ -1,13 +1,17 @@
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role;
+  const user = await getCurrentUser();
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
+  }
+  const role = user.role;
 
-  if (role === 'student' && userId) {
+  if (role === 'student') {
+    const studentId = user.studentId || user.id;
     // Student: can message only their teachers (by class and lessons)
-    const student = await prisma.student.findUnique({ where: { id: userId }, select: { classId: true } });
+    const student = await prisma.student.findUnique({ where: { id: studentId }, select: { classId: true } });
     if (!student?.classId) return new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } });
     const teachersByClass = await prisma.class.findUnique({ where: { id: student.classId }, include: { lessons: { select: { teacherId: true, teacher: { select: { id: true, name: true, surname: true } } } } } });
     const uniq: Record<string, { id: string; label: string; role: string }> = {};

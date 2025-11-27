@@ -1,12 +1,12 @@
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const { userId } = await auth();
-    if (!userId) return new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } });
+    const user = await getCurrentUser();
+    if (!user) return new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } });
     const messages = await prisma.message.findMany({
-      where: { recipientId: userId },
+      where: { recipientId: user.id },
       orderBy: { createdAt: 'desc' }
     });
     return new Response(JSON.stringify(messages), { status: 200, headers: { "Content-Type": "application/json" } });

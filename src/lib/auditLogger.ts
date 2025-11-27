@@ -1,5 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
-import prisma from "./prisma";
+import { getCurrentUserProfile } from "./auth";
 
 export interface AuditLog {
   id?: number;
@@ -20,18 +19,13 @@ export interface AuditLog {
 export class AuditLogger {
   static async log(action: string, resource: string, details: string, resourceId?: string, success: boolean = true, errorMessage?: string) {
     try {
-      const { userId } = await auth();
-      if (!userId) return;
-
-      // Get user details from Clerk
-      const user = await prisma.staffUser.findFirst({
-        where: { clerkId: userId }
-      });
+      const currentUser = await getCurrentUserProfile();
+      if (!currentUser) return;
 
       const auditLog: Omit<AuditLog, 'id'> = {
-        userId,
-        userName: user?.name || 'Unknown User',
-        userRole: user?.role || 'unknown',
+        userId: currentUser.id,
+        userName: currentUser.displayName || currentUser.username,
+        userRole: currentUser.role,
         action,
         resource,
         resourceId,

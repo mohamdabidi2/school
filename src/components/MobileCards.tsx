@@ -1,14 +1,14 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { getRoleRedirect } from "@/lib/getRoleRedirect";
+import { useCurrentUser } from "./providers/CurrentUserProvider";
 
 // Mobile Cards component for phone screens
 const MobileCards = () => {
-  const { user } = useUser();
-  const role = user?.publicMetadata?.role as string || "";
+  const user = useCurrentUser();
+  const role = user?.role || "";
   const homeUrl = getRoleRedirect(role);
 
   // Menu items with the same structure as Menu.tsx

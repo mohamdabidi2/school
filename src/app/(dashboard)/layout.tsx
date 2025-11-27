@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useUser } from "@clerk/nextjs";
 import Menu from "@/components/Menu";
 import NavbarClient from "@/components/NavbarClient";
 import Image from "next/image";
 import Link from "next/link";
 import { getRoleRedirect } from "@/lib/getRoleRedirect";
+import { useCurrentUser } from "@/components/providers/CurrentUserProvider";
 
 // Mobile-first responsive layout
 export default function DispositionTableauDeBord({
@@ -15,22 +15,21 @@ export default function DispositionTableauDeBord({
   children: React.ReactNode;
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, isLoaded } = useUser();
-  const role = user?.publicMetadata?.role as string || "";
+  const user = useCurrentUser();
+  const role = user?.role || "";
   const homeUrl = getRoleRedirect(role) || "/";
 
   // Log role when user data is loaded
   useEffect(() => {
-    if (isLoaded && user) {
+    if (user) {
       console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
       console.log("📱 [DASHBOARD LAYOUT] User data loaded");
       console.log("   ├─ User ID:", user.id);
-      console.log("   ├─ Email:", user.emailAddresses[0]?.emailAddress || "not found");
+      console.log("   ├─ Email:", user.email || "not found");
       console.log("   └─ 🔑 USER ROLE:", role || "❌ NO ROLE FOUND");
-      console.log("   └─ Full publicMetadata:", JSON.stringify(user.publicMetadata, null, 2));
       console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }
-  }, [isLoaded, user, role]);
+  }, [user, role]);
 
   return (
     <div className="h-screen flex flex-col lg:flex-row">

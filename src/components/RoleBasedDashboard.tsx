@@ -1,13 +1,13 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
 import AIAnalytics from "./AIAnalytics";
 import NotificationManager from "./NotificationManager";
+import { useCurrentUser } from "./providers/CurrentUserProvider";
 
 const RoleBasedDashboard = () => {
-  const { user } = useUser();
-  const role = user?.publicMetadata?.role as string || "";
+  const user = useCurrentUser();
+  const role = user?.role || "";
   const [adminData, setAdminData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -58,7 +58,7 @@ const RoleBasedDashboard = () => {
       <div className="space-y-6">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg">
           <h1 className="text-2xl font-bold mb-2">👨‍🏫 Tableau de Bord Enseignant</h1>
-          <p className="text-blue-100">Bienvenue {user?.fullName || 'Professeur'}, gérez vos classes et élèves</p>
+          <p className="text-blue-100">Bienvenue {user?.displayName || 'Professeur'}, gérez vos classes et élèves</p>
         </div>
         
         {/* Teacher Statistics */}
@@ -207,7 +207,7 @@ const RoleBasedDashboard = () => {
       <div className="space-y-6">
         <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-lg">
           <h1 className="text-2xl font-bold mb-2">🎓 Mon Tableau de Bord</h1>
-          <p className="text-green-100">Bienvenue {user?.fullName || 'Élève'}, suivez votre progression académique</p>
+          <p className="text-green-100">Bienvenue {user?.displayName || 'Élève'}, suivez votre progression académique</p>
         </div>
         
         {/* Student Statistics */}
@@ -379,7 +379,7 @@ const RoleBasedDashboard = () => {
       <div className="space-y-6">
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-lg">
           <h1 className="text-2xl font-bold mb-2">👨‍👩‍👧‍👦 Tableau de Bord Parent</h1>
-          <p className="text-purple-100">Bienvenue {user?.fullName || 'Parent'}, suivez la progression de vos enfants</p>
+          <p className="text-purple-100">Bienvenue {user?.displayName || 'Parent'}, suivez la progression de vos enfants</p>
         </div>
         
         {/* Parent Statistics */}
@@ -552,7 +552,7 @@ const RoleBasedDashboard = () => {
       <div className="space-y-6">
         <div className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white p-6 rounded-lg">
           <h1 className="text-2xl font-bold mb-2">📋 Tableau de Bord Administration</h1>
-          <p className="text-yellow-100">Bienvenue {user?.fullName || 'Équipe Administration'}, gérez les opérations de l&apos;école</p>
+          <p className="text-yellow-100">Bienvenue {user?.displayName || 'Équipe Administration'}, gérez les opérations de l&apos;école</p>
         </div>
         
         {/* Administration Statistics */}
@@ -645,7 +645,7 @@ const RoleBasedDashboard = () => {
       <div className="space-y-6">
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-lg">
           <h1 className="text-2xl font-bold mb-2">💰 Tableau de Bord Finance</h1>
-          <p className="text-green-100">Bienvenue {user?.fullName || 'Équipe Finance'}, gérez les finances de l&apos;école</p>
+          <p className="text-green-100">Bienvenue {user?.displayName || 'Équipe Finance'}, gérez les finances de l&apos;école</p>
         </div>
         
         {/* Finance Statistics */}

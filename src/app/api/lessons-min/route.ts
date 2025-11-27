@@ -1,14 +1,14 @@
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const { userId, sessionClaims } = await auth();
-    const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role;
+    const user = await getCurrentUser();
+    const role = user?.role;
 
     const where: any = {};
-    if (role === "teacher" && userId) {
-      where.teacherId = userId;
+    if (role === "teacher" && user) {
+      where.teacherId = user.teacherId || user.id;
     }
 
     const lessons = await prisma.lesson.findMany({

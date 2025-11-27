@@ -1,21 +1,18 @@
 import { NextResponse } from "next/server";
-import { auth, clerkClient } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 // This route uses auth and other dynamic server features; ensure it's treated as dynamic
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user from Clerk to get role
-    const clerk = await clerkClient();
-    const clerkUser = await clerk.users.getUser(userId);
-    const role = clerkUser.publicMetadata?.role as string || "";
+    const role = user.role;
 
     // Fetch data based on role
     switch (role) {
@@ -26,11 +23,11 @@ export async function GET() {
       case "administration":
         return await getAdministrationDashboardData();
       case "teacher":
-        return await getTeacherDashboardData(userId);
+        return await getTeacherDashboardData(user.teacherId || user.id);
       case "student":
-        return await getStudentDashboardData(userId);
+        return await getStudentDashboardData(user.studentId || user.id);
       case "parent":
-        return await getParentDashboardData(userId);
+        return await getParentDashboardData(user.parentId || user.id);
       case "finance":
         return await getFinanceDashboardData();
       default:

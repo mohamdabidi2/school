@@ -250,7 +250,6 @@ model StaffUser {
   img       String?
   salary    Float?
   role      StaffRole
-  clerkId   String?   @unique
   createdAt DateTime  @default(now())
 }
 
@@ -371,4 +370,33 @@ model ChatMessage {
   @@index([senderId])
   @@index([recipientId])
   @@index([timestamp])
+}
+
+model AppUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  role         String
+  teacherId    String?
+  studentId    String?
+  parentId     String?
+  adminId      String?
+  staffId      Int?
+  createdAt    DateTime @default(now())
+  sessions     AppSession[]
+
+  @@index([role])
+}
+
+model AppSession {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
 }

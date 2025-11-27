@@ -1,17 +1,18 @@
 import Annonces from "@/components/Announcements";
 import BigCalendarContainer from "@/components/BigCalendarContainer";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Page Enseignant (FR)
 const PageEnseignant = async () => {
-  const { userId } = await auth();
+  const user = await requireCurrentUser();
+  const teacherId = user.teacherId || user.id;
   return (
     <div className="flex-1 p-4 flex gap-4 flex-col xl:flex-row">
       {/* GAUCHE */}
       <div className="w-full xl:w-2/3">
         <div className="h-full bg-white p-4 rounded-md">
           <h1 className="text-xl font-semibold">Emploi du temps</h1>
-          <BigCalendarContainer type="teacherId" id={userId!} />
+          <BigCalendarContainer type="teacherId" id={teacherId} />
         </div>
       </div>
       {/* DROITE */}

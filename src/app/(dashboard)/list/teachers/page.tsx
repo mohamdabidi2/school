@@ -8,7 +8,7 @@ import { Class, Prisma, Subject, Teacher } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Définition du type pour la liste des enseignants avec matières et classes associées
 type ListeEnseignant = Teacher & { subjects: Subject[] } & { classes: Class[] };
@@ -20,8 +20,8 @@ const PageListeEnseignants = async ({
   searchParams: { [key: string]: string | undefined };
 }) => {
   // Récupération du rôle de l'utilisateur connecté
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
 
   // Définition des colonnes du tableau d'enseignants
   const colonnes = [

@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Prisma, Subject, Teacher } from "@prisma/client";
 import Image from "next/image";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Type pour la liste des matières incluant les enseignants
 type ListeMatiere = Subject & { teachers: Teacher[] };
@@ -17,8 +17,9 @@ const PageListeMatieres = async ({
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
+  const userId = user.id;
 
   // Définition des colonnes du tableau de matières
   const colonnes = [
@@ -81,17 +82,20 @@ const PageListeMatieres = async ({
   }
 
   // Role-scoped filtering
-  if (role === 'teacher' && userId) {
-    query.teachers = { some: { id: userId } } as any;
-  } else if (role === 'student' && userId) {
-    const student = await prisma.student.findUnique({ where: { id: userId }, select: { classId: true } });
+  if (role === 'teacher') {
+    const teacherScopeId = user.teacherId || userId;
+    query.teachers = { some: { id: teacherScopeId } } as any;
+  } else if (role === 'student') {
+    const studentScopeId = user.studentId || userId;
+    const student = await prisma.student.findUnique({ where: { id: studentScopeId }, select: { classId: true } });
     if (student?.classId) {
       query.lessons = { some: { classId: student.classId } } as any;
     } else {
       query.id = -1 as any;
     }
-  } else if (role === 'parent' && userId) {
-    const children = await prisma.student.findMany({ where: { parentId: userId }, select: { classId: true } });
+  } else if (role === 'parent') {
+    const parentScopeId = user.parentId || userId;
+    const children = await prisma.student.findMany({ where: { parentId: parentScopeId }, select: { classId: true } });
     const classIds = Array.from(new Set(children.map(c => c.classId).filter(Boolean))) as number[];
     if (classIds.length) query.lessons = { some: { classId: { in: classIds } as any } } as any; else query.id = -1 as any;
   }

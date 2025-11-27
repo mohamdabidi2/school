@@ -1,10 +1,10 @@
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) return new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } });
+    const user = await getCurrentUser();
+    if (!user) return new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } });
     const { searchParams } = new URL(request.url);
     const peerId = searchParams.get('peerId');
     if (!peerId) return new Response(JSON.stringify([]), { status: 200, headers: { "Content-Type": "application/json" } });
@@ -12,8 +12,8 @@ export async function GET(request: Request) {
     const thread = await prisma.message.findMany({
       where: {
         OR: [
-          { senderId: userId, recipientId: peerId },
-          { senderId: peerId, recipientId: userId },
+          { senderId: user.id, recipientId: peerId },
+          { senderId: peerId, recipientId: user.id },
         ],
       },
       orderBy: { createdAt: 'asc' },

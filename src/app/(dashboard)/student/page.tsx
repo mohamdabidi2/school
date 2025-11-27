@@ -3,16 +3,17 @@ import BigCalendarContainer from "@/components/BigCalendarContainer";
 import BigCalendar from "@/components/BigCalender";
 import EventCalendar from "@/components/EventCalendar";
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Page Étudiant (FR)
 const PageEtudiant = async () => {
-  const { userId } = await auth();
+  const user = await requireCurrentUser();
+  const studentId = user.studentId || user.id;
 
   // Récupération de la classe de l'étudiant connecté
   const classe = await prisma.class.findFirst({
     where: {
-      students: { some: { id: userId! } },
+      students: { some: { id: studentId } },
     },
   });
 

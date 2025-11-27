@@ -224,7 +224,6 @@ export type EventSchema = z.infer<typeof eventSchema>;
 // Schéma de validation pour un utilisateur staff
 export const staffUserSchema = z.object({
   id: z.coerce.number().optional(),
-  clerkId: z.string().optional(),
   username: z.string().min(3, { message: "Au moins 3 caractères" }),
   password: z.string().min(8, { message: "Au moins 8 caractères" }).optional().or(z.literal("")),
   role: z.enum(["finance", "administration", "administrateur", "directeur"], { required_error: "Rôle requis" }),

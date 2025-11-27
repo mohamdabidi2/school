@@ -1,22 +1,25 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
+import { getCurrentUser } from '@/lib/auth';
 
 // This route depends on auth/session and must be treated as dynamic
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const { userId, sessionClaims } = await auth();
-    const role = (sessionClaims?.metadata as { role?: string })?.role || '';
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const role = user.role || '';
 
     const where: any = {};
-    if (role === 'student' && userId) {
-      where.id = userId;
-    } else if (role === 'parent' && userId) {
-      where.parentId = userId;
-    } else if (role === 'teacher' && userId) {
-      where.class = { lessons: { some: { teacherId: userId } } };
+    if (role === 'student') {
+      where.id = user.studentId || user.id;
+    } else if (role === 'parent') {
+      where.parentId = user.parentId || user.id;
+    } else if (role === 'teacher') {
+      where.class = { lessons: { some: { teacherId: user.teacherId || user.id } } };
     }
 
     const students = await prisma.student.findMany({

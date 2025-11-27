@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Class, Lesson, Prisma, Subject, Teacher } from "@prisma/client";
 import Image from "next/image";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Définir le type pour une ligne de la liste des leçons
 type LessonList = Lesson & { subject: Subject } & { class: Class } & {
@@ -20,8 +20,11 @@ const LessonListPage = async ({
 }) => {
 
   // Authentification et récupération du rôle de l'utilisateur
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
+  const teacherId = user.teacherId || user.id;
+  const studentId = user.studentId || user.id;
+  const parentId = user.parentId || user.id;
 
   // Définition des colonnes du tableau, avec l'affichage conditionnel selon le rôle
   const colonnes = [
@@ -104,13 +107,13 @@ const LessonListPage = async ({
   }
 
   // Filtrage par rôle: chaque rôle ne voit que ses leçons pertinentes
-  if (role === "teacher" && userId) {
-    requete.teacherId = userId;
-  } else if (role === "student" && userId) {
-    const student = await prisma.student.findUnique({ where: { id: userId }, select: { classId: true } });
+  if (role === "teacher") {
+    requete.teacherId = teacherId;
+  } else if (role === "student") {
+    const student = await prisma.student.findUnique({ where: { id: studentId }, select: { classId: true } });
     if (student?.classId) requete.classId = student.classId;
-  } else if (role === "parent" && userId) {
-    const children = await prisma.student.findMany({ where: { parentId: userId }, select: { classId: true } });
+  } else if (role === "parent") {
+    const children = await prisma.student.findMany({ where: { parentId }, select: { classId: true } });
     const classIds = Array.from(new Set(children.map(c => c.classId).filter(Boolean))) as number[];
     if (classIds.length) requete.classId = { in: classIds } as any;
     else requete.classId = -1 as any; // no results if no classes

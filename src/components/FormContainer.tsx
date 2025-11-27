@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import FormModal from "./FormModal";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Définition des propriétés du composant FormContainer
 export type FormContainerProps = {
@@ -30,9 +30,9 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
   let donneesLiees = {};
 
   // Authentification de l'utilisateur courant
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
-  const utilisateurActuelId = userId;
+  const user = await requireCurrentUser();
+  const role = user.role;
+  const utilisateurActuelId = user.teacherId || user.id;
 
   // Config de sélection réutilisée pour classes et matières (exam / assignment)
   const classSelectConfig = {

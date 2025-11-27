@@ -1,17 +1,17 @@
 import Annonces from "@/components/Announcements";
 import BigCalendarContainer from "@/components/BigCalendarContainer";
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Page Parent (FR)
 const PageParent = async () => {
-  const { userId } = await auth();
-  const currentUserId = userId;
+  const user = await requireCurrentUser();
+  const parentId = user.parentId || user.id;
 
   // Récupérer les élèves liés à ce parent
   const eleves = await prisma.student.findMany({
     where: {
-      parentId: currentUserId!,
+      parentId,
     },
   });
 

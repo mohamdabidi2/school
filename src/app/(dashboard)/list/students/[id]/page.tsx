@@ -4,12 +4,12 @@ import FormContainer from "@/components/FormContainer";
 import Performance from "@/components/Performance";
 import StudentAttendanceCard from "@/components/StudentAttendanceCard";
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { Class, Student } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Page de profil d'un élève (en français)
 const PageProfilEtudiant = async ({
@@ -17,8 +17,8 @@ const PageProfilEtudiant = async ({
 }: {
   params: { id: string };
 }) => {
-  const { sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
 
   const etudiant:
     | (Student & {

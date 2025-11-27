@@ -7,7 +7,6 @@ const nextConfig = {
     remotePatterns: [
       { hostname: "images.pexels.com" },
       { hostname: "res.cloudinary.com" },
-      { hostname: "img.clerk.com" },
     ],
   },
   // Disable build trace collection to avoid ENOENT errors on Vercel

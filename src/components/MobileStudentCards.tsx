@@ -1,8 +1,8 @@
-import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import Image from "next/image";
 import Link from "next/link";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Mobile Student Cards component
 const MobileStudentCards = async ({ 
@@ -10,8 +10,8 @@ const MobileStudentCards = async ({
 }: { 
   searchParams: { [key: string]: string | undefined } 
 }) => {
-  const { sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role || "";
+  const user = await requireCurrentUser();
+  const role = user.role;
   
   const { page, search } = searchParams;
   const p = page ? parseInt(page) : 1;

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
+import { useCurrentUser } from './providers/CurrentUserProvider';
 
 interface Message {
   id: string;
@@ -21,7 +21,7 @@ interface RealtimeMessagingProps {
 }
 
 const RealtimeMessaging: React.FC<RealtimeMessagingProps> = ({ isOpen, onClose }) => {
-  const { user } = useUser();
+  const user = useCurrentUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isConnected, setIsConnected] = useState(false);
@@ -41,8 +41,8 @@ const RealtimeMessaging: React.FC<RealtimeMessagingProps> = ({ isOpen, onClose }
         ws.send(JSON.stringify({
           type: 'user_join',
           userId: user?.id,
-          userName: user?.fullName,
-          userRole: user?.publicMetadata?.role
+          userName: user?.displayName || user?.username,
+          userRole: user?.role
         }));
       };
 
@@ -92,8 +92,8 @@ const RealtimeMessaging: React.FC<RealtimeMessagingProps> = ({ isOpen, onClose }
         id: Date.now().toString(),
         content: newMessage,
         senderId: user?.id || '',
-        senderName: user?.fullName || 'Unknown',
-        senderRole: user?.publicMetadata?.role as string || 'user',
+        senderName: user?.displayName || user?.username || 'Unknown',
+        senderRole: user?.role || 'user',
         timestamp: new Date(),
         isRead: false,
         type: 'text'

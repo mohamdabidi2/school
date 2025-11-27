@@ -1,10 +1,10 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getRoleRedirect } from "@/lib/getRoleRedirect";
+import { useCurrentUser } from "./providers/CurrentUserProvider";
 
 // Menu en français
 const menuItems = [
@@ -141,9 +141,9 @@ const menuItems = [
 ];
 
 const Menu = () => {
-  const { user } = useUser();
+  const user = useCurrentUser();
   const pathname = usePathname();
-  const role = user?.publicMetadata?.role as string || "";
+  const role = user?.role || "";
 
   // Get role-specific home URL
   const homeUrl = getRoleRedirect(role);

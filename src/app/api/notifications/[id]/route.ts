@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -18,7 +18,7 @@ export async function PATCH(
     const notification = await prisma.notification.update({
       where: {
         id: parseInt(params.id),
-        userId // Ensure user can only update their own notifications
+        userId: user.id
       },
       data: {
         isRead,
@@ -38,15 +38,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await prisma.notification.delete({
       where: {
         id: parseInt(params.id),
-        userId // Ensure user can only delete their own notifications
+        userId: user.id
       }
     });
 

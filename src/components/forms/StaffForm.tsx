@@ -41,14 +41,7 @@ const StaffForm = ({
 
   const onSubmit = handleSubmit((payload) => {
     const basePayload = { ...payload, img: img?.secure_url || (payload as any).img };
-    const finalPayload =
-      type === 'update'
-        ? {
-            ...basePayload,
-            id: data?.id,
-            clerkId: data?.clerkId,
-          }
-        : basePayload;
+    const finalPayload = type === "update" ? { ...basePayload, id: data?.id } : basePayload;
 
     formAction(finalPayload as any);
   });
@@ -120,10 +113,7 @@ const StaffForm = ({
           type="password"
         />
         {data && (
-          <>
-            <InputField label="Id" name="id" defaultValue={data?.id} register={register} error={errors?.id as any} hidden />
-            <InputField label="clerkId" name="clerkId" defaultValue={data?.clerkId} register={register} error={undefined} hidden />
-          </>
+          <InputField label="Id" name="id" defaultValue={data?.id} register={register} error={errors?.id as any} hidden />
         )}
 
         <div className="flex flex-col gap-2 w-full md:w-1/4">

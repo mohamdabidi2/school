@@ -1,14 +1,17 @@
 "use client";
 
-import { UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import RealtimeMessaging from "./RealtimeMessaging";
+import { useCurrentUser } from "./providers/CurrentUserProvider";
+import { useRouter } from "next/navigation";
 
 const NavbarClient = () => {
-  const { user } = useUser();
+  const user = useCurrentUser();
+  const router = useRouter();
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -44,7 +47,21 @@ const NavbarClient = () => {
     return colorMap[role] || 'bg-gray-100 text-gray-800';
   };
 
-  const userRole = user?.publicMetadata?.role as string || '';
+  const userRole = user?.role || '';
+  const displayName = user?.displayName || user?.username || "Utilisateur";
+  const avatarUrl = user?.avatarUrl || "/noAvatar.png";
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await fetch("/api/logout", { method: "POST" });
+      router.replace("/sign-in");
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   if (!mounted) return null;
 
@@ -60,44 +77,23 @@ const NavbarClient = () => {
         {/* ICÔNES ET UTILISATEUR */}
         <div className="flex items-center gap-2 lg:gap-4 justify-end">
         
-          {/* User Profile Section - Mobile */}
-          <div className="lg:hidden flex items-center gap-2">
-           
-            <UserButton 
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8",
-                  userButtonPopoverCard: "shadow-lg border border-gray-200",
-                  userButtonPopoverActionButton: "hover:bg-gray-50",
-                  userButtonPopoverFooter: "hidden"
-                }
-              }}
-            />
-          </div>
-
-          {/* User Profile Section - Desktop */}
-          <div className="hidden lg:flex items-center gap-3">
-            <div className="flex flex-col items-end">
-              <span className="text-sm font-medium text-gray-800">{user?.fullName || 'Utilisateur'}</span>
-              <span className={`text-xs px-2 py-1 rounded-full ${getRoleColor(userRole)}`}>
-                {getRoleDisplayName(userRole)}
-              </span>
-          
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
+              <Image src={avatarUrl} alt="avatar" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
+              <div className="flex flex-col items-start">
+                <span className="text-sm font-medium text-gray-800">{displayName}</span>
+                <span className={`text-xs px-2 py-1 rounded-full ${getRoleColor(userRole)}`}>
+                  {getRoleDisplayName(userRole)}
+                </span>
+              </div>
             </div>
-            
-        
-            
-            {/* Clerk UserButton */}
-            <UserButton 
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8",
-                  userButtonPopoverCard: "shadow-lg border border-gray-200",
-                  userButtonPopoverActionButton: "hover:bg-gray-50",
-                  userButtonPopoverFooter: "hidden"
-                }
-              }}
-            />
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-xs font-medium disabled:opacity-50"
+            >
+              {loggingOut ? "Déconnexion..." : "Se déconnecter"}
+            </button>
           </div>
         </div>
       </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { useUser } from '@clerk/nextjs';
 
 interface NotificationPayload {
   id: string;
@@ -14,7 +13,6 @@ interface NotificationPayload {
 }
 
 const NotificationManager = () => {
-  const { user } = useUser();
   const [notifications, setNotifications] = useState<NotificationPayload[]>([]);
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const list = Array.isArray(notifications) ? notifications : [];

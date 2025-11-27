@@ -4,11 +4,11 @@ import BigCalendar from "@/components/BigCalender";
 import FormContainer from "@/components/FormContainer";
 import Performance from "@/components/Performance";
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { Teacher } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Page de profil d'un enseignant (en français)
 const PageUniqueEnseignant = async ({
@@ -16,8 +16,8 @@ const PageUniqueEnseignant = async ({
 }: {
   params: { id: string };
 }) => {
-  const { sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
 
   const enseignant:
     | (Teacher & {

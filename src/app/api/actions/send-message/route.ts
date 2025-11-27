@@ -1,10 +1,10 @@
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) return new Response(JSON.stringify({ error: "Non authentifié" }), { status: 401, headers: { "Content-Type": "application/json" } });
+    const user = await getCurrentUser();
+    if (!user) return new Response(JSON.stringify({ error: "Non authentifié" }), { status: 401, headers: { "Content-Type": "application/json" } });
 
     let body: any = {};
     try {
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     if (!subject) return new Response(JSON.stringify({ error: "Objet requis" }), { status: 400, headers: { "Content-Type": "application/json" } });
     if (!content) return new Response(JSON.stringify({ error: "Message requis" }), { status: 400, headers: { "Content-Type": "application/json" } });
 
-    await prisma.message.create({ data: { subject, content, recipientId, senderId: userId } });
+    await prisma.message.create({ data: { subject, content, recipientId, senderId: user.id } });
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { "Content-Type": "application/json" } });
   } catch (e: any) {
     console.error("send-message error:", e);

@@ -1,4 +1,5 @@
 import { PrismaClient, Day, UserSex } from "@prisma/client";
+import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 function uniqueUsername(base: string, used: Set<string>): string {
@@ -25,6 +26,42 @@ function uniqueEmail(base: string, used: Set<string>): string {
   return email;
 }
 
+type AppUserInput = {
+  id: string;
+  username: string;
+  role: string;
+  password?: string;
+  teacherId?: string;
+  studentId?: string;
+  parentId?: string;
+  adminId?: string;
+};
+
+async function createAppUserRecord({
+  id,
+  username,
+  role,
+  password = "password123",
+  teacherId,
+  studentId,
+  parentId,
+  adminId,
+}: AppUserInput) {
+  const passwordHash = await bcrypt.hash(password, 10);
+  await prisma.appUser.create({
+    data: {
+      id,
+      username,
+      passwordHash,
+      role,
+      ...(teacherId ? { teacherId } : {}),
+      ...(studentId ? { studentId } : {}),
+      ...(parentId ? { parentId } : {}),
+      ...(adminId ? { adminId } : {}),
+    },
+  });
+}
+
 async function main() {
   // ADMINISTRATEURS
   await prisma.admin.createMany({
@@ -33,6 +70,8 @@ async function main() {
       { id: "admin2", username: "admin2" },
     ],
   });
+  await createAppUserRecord({ id: "admin1", username: "admin", role: "admin", password: "admin123", adminId: "admin1" });
+  await createAppUserRecord({ id: "admin2", username: "admin2", role: "admin", password: "admin123", adminId: "admin2" });
 
   // NIVEAUX
   await prisma.grade.createMany({
@@ -88,6 +127,13 @@ async function main() {
         birthday: new Date(new Date().setFullYear(new Date().getFullYear() - (30 + i))),
       },
     });
+    await createAppUserRecord({
+      id: `prof${i + 1}`,
+      username,
+      role: "teacher",
+      password: "teacher123",
+      teacherId: `prof${i + 1}`,
+    });
   }
 
   // COURS
@@ -128,6 +174,13 @@ async function main() {
         address: `Avenue ${nom}, Lyon`,
       },
     });
+    await createAppUserRecord({
+      id: `parent${i + 1}`,
+      username,
+      role: "parent",
+      password: "parent123",
+      parentId: `parent${i + 1}`,
+    });
   }
 
   // ÉLÈVES
@@ -156,6 +209,13 @@ async function main() {
         classId: (i % 6) + 1,
         birthday: new Date(new Date().setFullYear(new Date().getFullYear() - (12 + (i % 4)))),
       },
+    });
+    await createAppUserRecord({
+      id: `eleve${i + 1}`,
+      username,
+      role: "student",
+      password: "student123",
+      studentId: `eleve${i + 1}`,
     });
   }
 

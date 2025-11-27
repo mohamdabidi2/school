@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Parent, Prisma, Student } from "@prisma/client";
 import Image from "next/image";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Type pour la liste de parents incluant les élèves associés
 type ListeParent = Parent & { students: Student[] };
@@ -18,8 +18,9 @@ const PageListeParents = async ({
   searchParams: { [key: string]: string | undefined };
 }) => {
   // Récupération du rôle de l'utilisateur connecté
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
+  const teacherId = user.teacherId || user.id;
 
   // Définition des colonnes du tableau des parents
   const colonnes = [
@@ -99,12 +100,12 @@ const PageListeParents = async ({
     }
   }
   // Scope for teachers: only parents of students in teacher's classes
-  if (role === "teacher" && userId) {
+  if (role === "teacher") {
     query.students = {
       some: {
         class: {
           teachers: {
-            some: { id: userId },
+            some: { id: teacherId },
           },
         },
       },

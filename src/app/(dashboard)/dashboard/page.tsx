@@ -1,6 +1,6 @@
 import dynamicImport from "next/dynamic";
-import { auth, clerkClient } from "@clerk/nextjs/server";
 import { Suspense } from "react";
+import { getCurrentUserProfile } from "@/lib/auth";
 
 // Dynamic imports to avoid build trace collection issues on Vercel
 const AttendanceChartContainer = dynamicImport(() => import("@/components/AttendanceChartContainer"));
@@ -27,19 +27,17 @@ const AccueilPage = async ({
 }: {
   searchParams: { [keys: string]: string | undefined };
 }) => {
-  const { userId } = await auth();
-  let role: string = "";
-  let email: string | undefined;
+  const currentUser = await getCurrentUserProfile();
   let roleContext: { parentId?: string; studentId?: string; teacherId?: string } = {};
+  let role = currentUser?.role || "";
+  let email = currentUser?.email || undefined;
   
-  // Debug logging for dashboard data fetching
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("📊 [DASHBOARD] Fetching user data from Clerk");
-  console.log("   ├─ userId:", userId ? `✅ ${userId}` : "❌ null");
+  console.log("📊 [DASHBOARD] Fetching user data from session");
+  console.log("   ├─ userId:", currentUser?.id ? `✅ ${currentUser.id}` : "❌ null");
   
-  // If no userId, redirect to sign-in (middleware should catch this, but safety check)
-  if (!userId) {
-    console.log("   └─ ❌ No userId in dashboard - this should not happen if middleware works");
+  if (!currentUser) {
+    console.log("   └─ ❌ No session in dashboard - this should not happen if middleware works");
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     // Don't redirect here - let middleware handle it to avoid loops
     // Just return a loading state
@@ -53,44 +51,17 @@ const AccueilPage = async ({
     );
   }
   
-  // Get all user data from Clerk publicMetadata - no database queries needed
-  if (userId) {
-    try {
-      const clerk = await clerkClient();
-      const clerkUser = await clerk.users.getUser(userId);
-      const metadata = clerkUser.publicMetadata as { role?: string; teacherId?: string; studentId?: string; parentId?: string } | undefined;
-      
-      // Debug: Log full publicMetadata
-      console.log("   ├─ Full publicMetadata:", JSON.stringify(clerkUser.publicMetadata, null, 2));
-      console.log("   ├─ Parsed metadata:", JSON.stringify(metadata, null, 2));
-      
-      // Get role from publicMetadata
-      role = metadata?.role || "";
-      email = clerkUser.emailAddresses?.[0]?.emailAddress;
-      
-      console.log("   ├─ Role extracted:", role || "❌ EMPTY/UNDEFINED");
-      console.log("   ├─ Email:", email || "❌ not found");
-      
-      // Use userId directly as domain ID (Clerk userId = database ID)
-      // Also check publicMetadata for explicit IDs if they exist
-      if (role === "teacher") {
-        roleContext.teacherId = metadata?.teacherId || userId;
-        console.log("   ├─ Teacher ID:", roleContext.teacherId);
-      } else if (role === "student") {
-        roleContext.studentId = metadata?.studentId || userId;
-        console.log("   ├─ Student ID:", roleContext.studentId);
-      } else if (role === "parent") {
-        roleContext.parentId = metadata?.parentId || userId;
-        console.log("   ├─ Parent ID:", roleContext.parentId);
-      }
-      
-      console.log("   └─ Role Context:", JSON.stringify(roleContext, null, 2));
-    } catch (error) {
-      console.error("   └─ ❌ Error fetching user from Clerk:", error);
-    }
-  } else {
-    console.log("   └─ ❌ No userId - cannot fetch user data");
+  if (currentUser.teacherId) {
+    roleContext.teacherId = currentUser.teacherId;
+  } else if (currentUser.studentId) {
+    roleContext.studentId = currentUser.studentId;
+  } else if (currentUser.parentId) {
+    roleContext.parentId = currentUser.parentId;
   }
+
+  console.log("   ├─ Role extracted:", role || "❌ EMPTY/UNDEFINED");
+  console.log("   ├─ Email:", email || "❌ not found");
+  console.log("   └─ Role Context:", JSON.stringify(roleContext, null, 2));
 
   const isAdminLike = ["admin", "director", "school-manager", "finance"].includes(role);
   const isTeacher = role === "teacher";

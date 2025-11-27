@@ -1,37 +1,16 @@
-import { UserButton } from "@clerk/nextjs";
-import { auth, clerkClient } from "@clerk/nextjs/server";
 import Image from "next/image";
 import RealtimeMessaging from "./RealtimeMessaging";
 import { useState } from "react";
+import { getCurrentUserProfile } from "@/lib/auth";
 
 const Navbar = async () => {
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role || "";
-  
-  // Get user's information from Clerk
-  let userInfo = {
-    name: "Utilisateur",
-    email: "",
-    imageUrl: "",
-    role: role
+  const user = await getCurrentUserProfile();
+  const userInfo = {
+    name: user?.displayName || user?.username || "Utilisateur",
+    email: user?.email || "",
+    imageUrl: user?.avatarUrl || "/noAvatar.png",
+    role: user?.role || "",
   };
-
-  if (userId) {
-    try {
-      const clerk = await clerkClient();
-      const user = await clerk.users.getUser(userId);
-      userInfo = {
-        name: user.firstName && user.lastName 
-          ? `${user.firstName} ${user.lastName}`.trim()
-          : user.username || user.emailAddresses[0]?.emailAddress || "Utilisateur",
-        email: user.emailAddresses[0]?.emailAddress || "",
-        imageUrl: user.imageUrl || "",
-        role: role
-      };
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    }
-  }
 
   // Role display mapping
   const getRoleDisplayName = (role: string) => {
@@ -80,17 +59,7 @@ const Navbar = async () => {
          
           </div>
         
-          {/* Clerk UserButton */}
-          <UserButton 
-            appearance={{
-              elements: {
-                avatarBox: "w-8 h-8",
-                userButtonPopoverCard: "shadow-lg border border-gray-200",
-                userButtonPopoverActionButton: "hover:bg-gray-50",
-                userButtonPopoverFooter: "hidden" // Hide the "Manage account" link if needed
-              }
-            }}
-          />
+          <Image src={userInfo.imageUrl} alt="avatar" width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
         </div>
       </div>
     </div>

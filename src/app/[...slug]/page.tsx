@@ -1,10 +1,10 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 
 export default async function CatchAllPage() {
-  const { userId } = await auth();
-  
-  if (userId) {
+  const user = await getCurrentUser();
+
+  if (user) {
     redirect("/dashboard");
   } else {
     redirect("/sign-in");

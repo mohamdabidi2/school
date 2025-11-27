@@ -1,8 +1,8 @@
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
-  const { userId } = await auth();
-  return new Response(JSON.stringify({ id: userId || null }), { status: 200, headers: { "Content-Type": "application/json" } });
+  const user = await getCurrentUser();
+  return new Response(JSON.stringify({ id: user?.id || null, role: user?.role || null }), { status: 200, headers: { "Content-Type": "application/json" } });
 }
 
 

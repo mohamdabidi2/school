@@ -10,7 +10,7 @@ import { Class, Prisma, Student } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Définition du type pour la liste des étudiants incluant la classe
 type ListeEtudiant = Student & { class: Class };
@@ -22,8 +22,11 @@ const PageListeEtudiants = async ({
   searchParams: { [key: string]: string | undefined };
 }) => {
   // Récupération du rôle de l'utilisateur connecté
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
+  const teacherId = user.teacherId || user.id;
+  const studentId = user.studentId || user.id;
+  const parentId = user.parentId || user.id;
 
   // Définition des colonnes du tableau d'élèves
   const colonnes = [
@@ -130,16 +133,16 @@ const PageListeEtudiants = async ({
   }
 
   // Role-scoped visibility
-  if (role === "teacher" && userId) {
+  if (role === "teacher") {
     requete.class = {
       teachers: {
-        some: { id: userId },
+        some: { id: teacherId },
       },
     } as any;
-  } else if (role === "student" && userId) {
-    requete.id = userId;
-  } else if (role === "parent" && userId) {
-    requete.parentId = userId;
+  } else if (role === "student") {
+    requete.id = studentId;
+  } else if (role === "parent") {
+    requete.parentId = parentId;
   }
 
   // Récupération de la liste des élèves et du nombre total
