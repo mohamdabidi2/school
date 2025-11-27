@@ -3,8 +3,9 @@
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const SignInForm = () => {
   return (
@@ -55,6 +56,13 @@ const SignInForm = () => {
 
 const SignInPage = () => {
   const { isSignedIn, isLoaded, user } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.replace("/");
+    }
+  }, [isSignedIn, router]);
 
   // Show loading while auth loads
   if (!isLoaded) {

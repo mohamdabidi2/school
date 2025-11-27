@@ -9,19 +9,15 @@ const publicRoutes = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
-  const pathname = req.nextUrl.pathname;
 
-  // If user is authenticated and on sign-in page, redirect to dashboard
   if (publicRoutes(req) && userId) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // If user is not authenticated and trying to access protected route, redirect to sign-in
   if (!publicRoutes(req) && !userId) {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
-  // Allow the request to proceed
   return NextResponse.next();
 });
 
