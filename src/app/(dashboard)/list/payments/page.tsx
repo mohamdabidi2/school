@@ -46,7 +46,9 @@ export default function PaymentsPage() {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/students-with-payments");
+      const response = await fetch("/api/students-with-payments", {
+        credentials: "include",
+      });
       const contentType = response.headers.get("content-type") || "";
       if (!contentType.includes("application/json")) {
         const body = await response.text();

@@ -19,7 +19,9 @@ const NotificationManager = () => {
 
   const loadNotifications = useCallback(async () => {
     try {
-      const response = await fetch('/api/notifications');
+      const response = await fetch('/api/notifications', {
+        credentials: 'include',
+      });
       const contentType = response.headers.get('content-type') || '';
 
       if (!contentType.includes('application/json')) {
