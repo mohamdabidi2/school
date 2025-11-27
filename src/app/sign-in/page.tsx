@@ -3,7 +3,7 @@
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import Image from "next/image";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
@@ -55,14 +55,15 @@ const SignInForm = () => {
 };
 
 const SignInPage = () => {
-  const { isSignedIn, isLoaded, user } = useUser();
-  const router = useRouter();
+  const { isSignedIn, isLoaded } = useUser();
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
-    if (isSignedIn) {
-      router.replace("/");
+    if (isLoaded && isSignedIn && !hasRedirected.current) {
+      hasRedirected.current = true;
+      window.location.replace("/");
     }
-  }, [isSignedIn, router]);
+  }, [isLoaded, isSignedIn]);
 
   // Show loading while auth loads
   if (!isLoaded) {
@@ -77,18 +78,7 @@ const SignInPage = () => {
   }
 
   // If already signed in, show loading (middleware will redirect)
-  if (isSignedIn) {
-    const role = user?.publicMetadata?.role as string || "";
-    console.log("✅ User signed in - Role:", role || "NO ROLE");
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-lamaSkyLight to-blue-200">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirection vers le tableau de bord...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isSignedIn) return null;
 
   // Show sign-in form
   return (
