@@ -47,6 +47,11 @@ export default function PaymentsPage() {
     try {
       setLoading(true);
       const response = await fetch("/api/students-with-payments");
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const body = await response.text();
+        throw new Error(`Réponse inattendue: ${body.slice(0, 200)}`);
+      }
       const data = await response.json();
       setStudents(data);
     } catch (error) {

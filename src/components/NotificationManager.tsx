@@ -20,6 +20,14 @@ const NotificationManager = () => {
   const loadNotifications = useCallback(async () => {
     try {
       const response = await fetch('/api/notifications');
+      const contentType = response.headers.get('content-type') || '';
+
+      if (!contentType.includes('application/json')) {
+        const body = await response.text();
+        console.error('Réponse inattendue des notifications:', body.slice(0, 200));
+        return;
+      }
+
       const data = await response.json();
       const normalized = Array.isArray(data)
         ? data
