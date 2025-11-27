@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 
 const PUBLIC_PATHS = [
   /^\/sign-in(\/.*)?$/,
+  /^\/api\/login$/,
   /^\/manifest\.json$/,
   /^\/sw\.js$/,
 ];
