@@ -72,7 +72,11 @@ const SignInPage = () => {
       const target = getRoleRedirect(role);
       console.log("[SignIn] Redirecting user", { role, target });
       hasRedirected.current = true;
-      router.replace(target);
+      if (typeof window !== "undefined") {
+        window.location.href = target;
+      } else {
+        router.replace(target);
+      }
     }
   }, [isLoaded, isSignedIn, user, router]);
 
