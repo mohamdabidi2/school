@@ -7,15 +7,18 @@ import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Prisma } from "@prisma/client";
 import Image from "next/image";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 const AttendanceListPage = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
+  const teacherScopeId = user.teacherId || user.id;
+  const studentScopeId = user.studentId || user.id;
+  const parentScopeId = user.parentId || user.id;
 
   const { page, ...queryParams } = searchParams;
   const p = page ? parseInt(page) : 1;
@@ -39,12 +42,12 @@ const AttendanceListPage = async ({
   }
 
   // Role-scoped filtering
-  if (role === "teacher" && userId) {
-    query.lesson = { teacherId: userId } as any;
-  } else if (role === "student" && userId) {
-    query.studentId = userId;
-  } else if (role === "parent" && userId) {
-    query.student = { parentId: userId } as any;
+  if (role === "teacher") {
+    query.lesson = { teacherId: teacherScopeId } as any;
+  } else if (role === "student") {
+    query.studentId = studentScopeId;
+  } else if (role === "parent") {
+    query.student = { parentId: parentScopeId } as any;
   }
 
   const [rows, count] = await prisma.$transaction([

@@ -22,6 +22,9 @@ const PageListeEnseignants = async ({
   // Récupération du rôle de l'utilisateur connecté
   const user = await requireCurrentUser();
   const role = user.role;
+  const teacherScopeId = user.teacherId || user.id;
+  const studentScopeId = user.studentId || user.id;
+  const parentScopeId = user.parentId || user.id;
 
   // Définition des colonnes du tableau d'enseignants
   const colonnes = [
@@ -135,19 +138,19 @@ const PageListeEnseignants = async ({
   }
 
   // Role-scoped visibility
-  if (role === "teacher" && userId) {
-    query.id = userId;
-  } else if (role === "student" && userId) {
+  if (role === "teacher") {
+    query.id = teacherScopeId;
+  } else if (role === "student") {
     // Teachers who teach student's class
-    const student = await prisma.student.findUnique({ where: { id: userId }, select: { classId: true } });
+    const student = await prisma.student.findUnique({ where: { id: studentScopeId }, select: { classId: true } });
     if (student?.classId) {
       query.lessons = { some: { classId: student.classId } };
     } else {
       query.id = "__none__" as any; // no results
     }
-  } else if (role === "parent" && userId) {
+  } else if (role === "parent") {
     // Teachers who teach any of the parent's children classes
-    const children = await prisma.student.findMany({ where: { parentId: userId }, select: { classId: true } });
+    const children = await prisma.student.findMany({ where: { parentId: parentScopeId }, select: { classId: true } });
     const classIds = Array.from(new Set(children.map(c => c.classId).filter(Boolean))) as number[];
     if (classIds.length) {
       query.lessons = { some: { classId: { in: classIds } as any } } as any;

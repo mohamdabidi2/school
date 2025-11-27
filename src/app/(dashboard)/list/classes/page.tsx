@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Class, Prisma, Teacher } from "@prisma/client";
 import Image from "next/image";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Type étendu pour la liste des classes incluant le professeur principal
 type ListeClasse = Class & { supervisor: Teacher, teachers: Pick<Teacher,'id'|'name'|'surname'>[] };
@@ -17,8 +17,11 @@ const PageListeClasses = async ({
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
+  const teacherScopeId = user.teacherId || user.id;
+  const studentScopeId = user.studentId || user.id;
+  const parentScopeId = user.parentId || user.id;
 
   // Définition des colonnes du tableau des classes
   const colonnes = [
@@ -106,14 +109,14 @@ const PageListeClasses = async ({
   }
 
   // Role-scoped visibility
-  if (role === "teacher" && userId) {
-    query.teachers = { some: { id: userId } } as any;
-  } else if (role === "student" && userId) {
-    const student = await prisma.student.findUnique({ where: { id: userId }, select: { classId: true } });
+  if (role === "teacher") {
+    query.teachers = { some: { id: teacherScopeId } } as any;
+  } else if (role === "student") {
+    const student = await prisma.student.findUnique({ where: { id: studentScopeId }, select: { classId: true } });
     if (student?.classId) query.id = student.classId;
     else query.id = -1 as any;
-  } else if (role === "parent" && userId) {
-    const children = await prisma.student.findMany({ where: { parentId: userId }, select: { classId: true } });
+  } else if (role === "parent") {
+    const children = await prisma.student.findMany({ where: { parentId: parentScopeId }, select: { classId: true } });
     const classIds = Array.from(new Set(children.map(c => c.classId).filter(Boolean))) as number[];
     if (classIds.length) query.id = { in: classIds } as any; else query.id = -1 as any;
   }

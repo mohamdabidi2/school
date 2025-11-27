@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import { Announcement, Class, Prisma } from "@prisma/client";
 import Image from "next/image";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 // Type pour la liste des annonces avec la classe associée
 type ListeAnnonce = Announcement & { class: Class };
@@ -17,9 +17,11 @@ const PageListeAnnonces = async ({
   searchParams: { [key: string]: string | undefined };
 }) => {
 
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
-  const currentUserId = userId;
+  const user = await requireCurrentUser();
+  const role = user.role;
+  const teacherId = user.teacherId || user.id;
+  const studentId = user.studentId || user.id;
+  const parentId = user.parentId || user.id;
 
   // Définition des colonnes du tableau
   const colonnes = [
@@ -89,15 +91,15 @@ const PageListeAnnonces = async ({
   }
 
   // Role-scoped filtering
-  if (role === "teacher" && currentUserId) {
-    const classes = await prisma.class.findMany({ where: { lessons: { some: { teacherId: currentUserId } } }, select: { id: true } });
+  if (role === "teacher") {
+    const classes = await prisma.class.findMany({ where: { lessons: { some: { teacherId } } }, select: { id: true } });
     const classIds = classes.map(c => c.id);
     if (classIds.length) query.classId = { in: classIds } as any; else query.classId = -1 as any;
-  } else if (role === "student" && currentUserId) {
-    const student = await prisma.student.findUnique({ where: { id: currentUserId }, select: { classId: true } });
+  } else if (role === "student") {
+    const student = await prisma.student.findUnique({ where: { id: studentId }, select: { classId: true } });
     if (student?.classId) query.classId = student.classId; else query.classId = -1 as any;
-  } else if (role === "parent" && currentUserId) {
-    const children = await prisma.student.findMany({ where: { parentId: currentUserId }, select: { classId: true } });
+  } else if (role === "parent") {
+    const children = await prisma.student.findMany({ where: { parentId }, select: { classId: true } });
     const classIds = Array.from(new Set(children.map(c => c.classId).filter(Boolean))) as number[];
     if (classIds.length) query.classId = { in: classIds } as any; else query.classId = -1 as any;
   }

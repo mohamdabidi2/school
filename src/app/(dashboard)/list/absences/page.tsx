@@ -5,13 +5,14 @@ import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 import Image from "next/image";
-import { auth } from "@clerk/nextjs/server";
+import { requireCurrentUser } from "@/lib/auth";
 
 type AbsenceRow = { id: number; date: Date; reason: string | null; teacher: { id: string; name: string; surname: string } };
 
 const PageAbsences = async ({ searchParams }: { searchParams: { [key: string]: string | undefined } }) => {
-  const { userId, sessionClaims } = await auth();
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  const user = await requireCurrentUser();
+  const role = user.role;
+  const teacherId = user.teacherId || user.id;
 
   const { page, search } = searchParams;
   const p = page ? parseInt(page) : 1;
@@ -26,8 +27,8 @@ const PageAbsences = async ({ searchParams }: { searchParams: { [key: string]: s
   }
 
   // Role-scoped filtering: teachers see their own absences; others default to all (admin) or none
-  if (role === 'teacher' && userId) {
-    where.teacherId = userId;
+  if (role === 'teacher') {
+    where.teacherId = teacherId;
   }
 
   const [rows, count] = await prisma.$transaction([
