@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import RealtimeMessaging from "./RealtimeMessaging";
 import { useCurrentUser } from "./providers/CurrentUserProvider";
 import { useRouter } from "next/navigation";
+import { backendFetch } from "@/lib/backend";
 
 const NavbarClient = () => {
   const user = useCurrentUser();
@@ -54,7 +55,7 @@ const NavbarClient = () => {
   const handleLogout = async () => {
     try {
       setLoggingOut(true);
-      await fetch("/api/logout", { method: "POST" });
+      await backendFetch("/api/auth/logout", { method: "POST" });
       router.replace("/sign-in");
     } catch (error) {
       console.error("Logout failed", error);

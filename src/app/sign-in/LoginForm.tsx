@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getRoleRedirect } from "@/lib/getRoleRedirect";
+import { backendFetch } from "@/lib/backend";
 
 type FormState = {
   username: string;
@@ -25,9 +26,8 @@ export default function LoginForm() {
     setError(null);
 
     try {
-      const response = await fetch("/api/login", {
+      const response = await backendFetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
 
