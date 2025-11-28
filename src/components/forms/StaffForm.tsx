@@ -113,7 +113,7 @@ const StaffForm = ({
           type="password"
         />
         {data && (
-          <InputField label="Id" name="id" defaultValue={data?.id} register={register} error={errors?.id as any} hidden />
+            <InputField label="Id" name="id" defaultValue={data?.id} register={register} error={errors?.id as any} hidden />
         )}
 
         <div className="flex flex-col gap-2 w-full md:w-1/4">
