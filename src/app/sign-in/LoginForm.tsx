@@ -39,13 +39,7 @@ export default function LoginForm() {
         return;
       }
 
-      const role =
-        data.role ??
-        data.user?.role ??
-        data.user?.role?.toUpperCase?.() ??
-        null;
-      const target = data.redirectTo || (role ? getRoleRedirect(role) : "/");
-      router.replace(target);
+      router.replace("/dashboard");
     } catch (err) {
       console.error(err);
       setError("Erreur réseau.");
